@@ -1,0 +1,65 @@
+module HuggingFaceStorage
+  # Orchestrates cross-repository file copy operations.
+  class CrossRepoCopyService
+    include Instrumentation
+    include CopyOperations
+
+    def initialize: (
+      api_client: ApiClient,
+      file_manager: FileManager?,
+      copy_pipeline: CopyPipeline,
+      bucket_id: String,
+      source_iterator: SourceIterator,
+      ?logger: HFLogger?,
+      ?metrics_registry: Object?,
+      ?notifications: Object?
+    ) -> void
+
+    # Copies files from a tree listing into the destination bucket.
+    def copy_from_tree: (
+      source_type: String,
+      source_repo: String,
+      tree: String | Array[Hash[Symbol, untyped] | Symbol],
+      ?source_prefix: String?,
+      ?destination_prefix: String?,
+      ?exclude: Array[String]?,
+      ?overwrite: bool,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, (Integer | String)]
+
+    # Copies files from a source repo into the destination bucket.
+    def copy_from_repo: (
+      source_type: String,
+      source_repo: String,
+      ?source_path: String?,
+      ?destination_prefix: String?,
+      ?revision: String,
+      ?exclude: Array[String]?,
+      ?overwrite: bool,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, untyped]
+
+    # Copies multiple source folders to the destination bucket.
+    def copy_folders: (
+      folders: Array[Hash[Symbol, untyped]],
+      ?overwrite: bool,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?,
+      ?raise_on_partial_failure: bool
+    ) -> Hash[Symbol, untyped]
+
+    private
+
+    def filter_tree_entries: (Array[Hash[String | Symbol, untyped]] entries, String? source_prefix, Array[String]? exclude) -> Array[Hash[String | Symbol, untyped]]
+    def build_destination_map: (Array[Hash[String | Symbol, untyped]] entries, String? source_prefix, String? destination_prefix) -> Array[Hash[Symbol, untyped]]
+    def skip_existing_files: (Array[Hash[Symbol, untyped]] files) -> Integer
+    def execute_source_iteration: (Array[String?] sources, String? normalized_dst_base, String source_type, String source_repo, String revision, Array[String]? exclude, CancelToken? cancel_token) -> untyped
+    def process_folder_sources: (Array[Hash[Symbol, untyped]] folders, CancelToken? cancel_token) -> untyped
+
+    module CopyOperations
+      def single_copy: (source_type: String, source_repo: String, xet_hash: String, destination: String, ?source_path: String?, ?overwrite: bool, ?cancel_token: CancelToken?) -> Hash[Symbol, String]
+      def batch_copy: (source_type: String, source_repo: String, files: Array[Hash[Symbol, untyped]], ?overwrite: bool, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+      def execute_batch_plan: (Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] pending_downloads, Array[Hash[Symbol, untyped]] source_results, overwrite: bool, cancel_token: CancelToken?, label: String, ?raise_on_partial_failure: bool) -> Hash[Symbol, untyped]
+    end
+  end
+end

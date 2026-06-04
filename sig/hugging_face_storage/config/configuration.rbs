@@ -1,0 +1,70 @@
+module HuggingFaceStorage
+  class Configuration
+    HttpConfig: singleton(::HuggingFaceStorage::HttpConfig)
+    RetryConfig: singleton(::HuggingFaceStorage::RetryConfig)
+    BatchConfig: singleton(::HuggingFaceStorage::BatchConfig)
+    LogConfig: singleton(::HuggingFaceStorage::LogConfig)
+    CacheConfig: singleton(::HuggingFaceStorage::CacheConfig)
+    ParallelConfig: singleton(::HuggingFaceStorage::ParallelConfig)
+    EditConfig: singleton(::HuggingFaceStorage::EditConfig)
+    FIELD_MAP: Hash[Symbol, Symbol]
+
+    attr_reader http: HttpConfig
+    attr_reader retry_config: RetryConfig
+    attr_reader batch: BatchConfig
+    attr_reader log: LogConfig
+    attr_reader cache: CacheConfig
+    attr_reader parallel: ParallelConfig
+    attr_reader edit: EditConfig
+
+    def initialize: (
+      ?http: HttpConfig,
+      ?retry_config: RetryConfig,
+      ?batch: BatchConfig,
+      ?log: LogConfig,
+      ?cache: CacheConfig,
+      ?parallel: ParallelConfig,
+      ?edit: EditConfig,
+      **untyped overrides
+    ) -> void
+
+    def base_url: -> String
+    def idle_timeout: -> Integer
+    def open_timeout: -> Integer
+    def read_timeout: -> Integer
+    def write_timeout: -> Integer
+    def stream_chunk_size: -> Integer
+    def debug_mode: -> bool
+    def max_retries: -> Integer
+    def retry_delay: -> Integer
+    def max_retry_delay: -> Integer
+    def batch_size: -> Integer
+    def delete_batch_size: -> Integer
+    def copy_batch_size: -> Integer
+    def batch_threshold: -> Integer
+    def batch_memory_limit: -> Integer
+    def small_size_threshold: -> Integer
+    def body_log_max: -> Integer
+    def colorize_cache_max: -> Integer
+    def metadata_cache_ttl: -> Integer
+    def xet_token_cache_size: -> Integer
+    def token_expiry_buffer: -> Integer
+    def parallel_downloads: -> Integer
+    def parallel_verify: -> Integer
+    def stream_threshold: -> Integer
+    def max_edit_file_size: -> Integer?
+
+    def retry: -> RetryConfig
+    def retry_settings: -> RetryConfig
+
+    def self.default: -> Configuration
+
+    def to_h: -> { http: HttpConfig, retry_config: RetryConfig, batch: BatchConfig, log: LogConfig, cache: CacheConfig, parallel: ParallelConfig, edit: EditConfig }
+
+    def with: (**untyped changes) -> Configuration
+
+    private
+
+    def apply_overrides: (Hash[Symbol, untyped] overrides) -> void
+  end
+end

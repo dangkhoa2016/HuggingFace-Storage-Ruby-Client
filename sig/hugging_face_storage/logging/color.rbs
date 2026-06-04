@@ -1,0 +1,24 @@
+module HuggingFaceStorage
+  module Color
+    RESET: String
+    BOLD: String
+    DIM: String
+    BLACK: String
+    RED: String
+    GREEN: String
+    YELLOW: String
+    BLUE: String
+    MAGENTA: String
+    CYAN: String
+    WHITE: String
+    BRIGHT_RED: String
+    BRIGHT_GREEN: String
+    BRIGHT_YELLOW: String
+    BRIGHT_BLUE: String
+    BRIGHT_MAGENTA: String
+    BRIGHT_CYAN: String
+    BRIGHT_WHITE: String
+
+    def self.strip: (String str) -> String
+  end
+end

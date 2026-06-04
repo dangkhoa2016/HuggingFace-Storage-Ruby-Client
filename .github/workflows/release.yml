@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.8
+          bundler-cache: true
+
+      - run: bin/rspec
+      - run: bundle exec rubocop --parallel
+      - run: bundle exec rbs validate
+
+      - run: gem build hugging_face_storage.gemspec
+
+      - name: Push gem
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: gem push hugging_face_storage-*.gem
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: hugging_face_storage-*.gem
+          generate_release_notes: true

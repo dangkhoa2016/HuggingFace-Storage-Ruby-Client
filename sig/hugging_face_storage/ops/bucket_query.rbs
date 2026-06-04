@@ -1,0 +1,21 @@
+module HuggingFaceStorage
+  module BucketQuery
+    def self.query_paths: (ApiClient api, String bucket_id, Array[String] paths) -> Array[Hash[String, untyped]]?
+    def self.fetch_file_info: (ApiClient api, String bucket_id, String path) -> Hash[Symbol, untyped]
+    def self.file_exists?: (ApiClient api, String bucket_id, String path) -> bool
+    def self.batch_exists?: (ApiClient api, String bucket_id, Array[String] paths) -> Set[String]
+    def self.reject_existing!: (ApiClient api, String bucket_id, Array[Hash[Symbol, untyped]] items, ?path_key: Symbol) -> Integer
+    def self.ensure_file!: (ApiClient api, String bucket_id, String path) -> void
+    def self.ensure_files!: (ApiClient api, String bucket_id, Array[String] paths) -> void
+
+    private
+
+    def query_paths: (ApiClient api, String bucket_id, Array[String] paths) -> Array[Hash[String, untyped]]?
+    def fetch_file_info: (ApiClient api, String bucket_id, String path) -> Hash[Symbol, untyped]
+    def file_exists?: (ApiClient api, String bucket_id, String path) -> bool
+    def batch_exists?: (ApiClient api, String bucket_id, Array[String] paths) -> Set[String]
+    def reject_existing!: (ApiClient api, String bucket_id, Array[Hash[Symbol, untyped]] items, ?path_key: Symbol) -> Integer
+    def ensure_file!: (ApiClient api, String bucket_id, String path) -> void
+    def ensure_files!: (ApiClient api, String bucket_id, Array[String] paths) -> void
+  end
+end

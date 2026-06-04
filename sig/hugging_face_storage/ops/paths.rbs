@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  module Paths
+    def self.normalize: (String path) -> String
+    def self.strip_leading_slash: (String path) -> String
+    def self.encode_segments: (String path) -> String
+    def self.parent: (String path) -> String
+
+    def normalize: (String path) -> String
+    def strip_leading_slash: (String path) -> String
+    def encode_segments: (String path) -> String
+    def parent: (String path) -> String
+  end
+end

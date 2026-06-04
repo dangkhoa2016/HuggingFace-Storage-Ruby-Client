@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class FileDownloader
+    def initialize: (api_client: ApiClient, ?logger: HFLogger?) -> void
+    def download_repo_file_streaming: (String repo_type, String repo_name, String path, ?revision: String?, ?cancel_token: CancelToken?) { (String) -> void } -> void
+    def download_repo_file: (String repo_type, String repo_name, String path, ?revision: String?, ?cancel_token: CancelToken?) -> String
+
+    private
+
+    def build_repo_file_url: (String repo_type, String repo_name, String path, String? revision) -> String
+  end
+end

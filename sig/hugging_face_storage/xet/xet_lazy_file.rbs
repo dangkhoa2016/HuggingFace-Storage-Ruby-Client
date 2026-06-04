@@ -1,0 +1,18 @@
+module HuggingFaceStorage
+  class XetLazyFile
+    attr_reader path: String
+
+    def initialize: (bucket_id: String, remote_path: String, api_client: ApiClient, xet_downloader: XetDownloader) -> void
+    def metadata: -> Hash[Symbol, untyped]
+    def content: -> String
+    def read: ?{ (String) -> void } -> (String | Integer)
+    def save_to: (String local_path) -> String
+    def size: -> Integer
+    def xet_hash: -> String
+    def mtime: -> untyped
+    def loaded?: -> bool
+    def content_streaming: (?chunk_size: Integer) { (String) -> void } -> Enumerator[String]
+    def release!: -> self
+    def to_s: -> String
+  end
+end

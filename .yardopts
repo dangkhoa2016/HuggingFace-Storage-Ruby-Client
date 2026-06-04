@@ -1,0 +1,7 @@
+--output-dir docs/api
+--markup markdown
+--protected
+--private
+--no-yardopts
+--asset images:assets/images
+src/**/*.rb

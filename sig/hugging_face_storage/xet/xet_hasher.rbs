@@ -1,0 +1,52 @@
+module HuggingFaceStorage
+  # Computes content-defined chunk hashes, xorb hashes, file hashes, and verification hashes.
+  class XetHasher
+    include Blake3Binding
+
+    XORB_MAX_SIZE: Integer
+    XORB_MAX_CHUNKS: Integer
+    MEAN_CHUNK_PER_NODE: Integer
+    CHUNK_HEADER_SIZE: Integer
+    IDX_LAST_U64_BYTE: Integer
+    BATCH_PARALLEL_THRESHOLD: Integer
+
+    THREAD_POOL_KEY: Symbol
+
+    MASK: Integer
+    MIN_CHUNK: Integer
+    MAX_CHUNK: Integer
+    TARGET_CHUNK: Integer
+
+    def initialize: -> void
+
+    def cdc_chunk: (String data) -> Array[Array[Integer]]
+    def cdc_chunk_ruby: (String data) -> Array[Array[Integer]]
+
+    def self.gearhash_step: (Integer state, Integer byte) -> Integer
+
+    # Computes BLAKE3 keyed hashes for an array of data chunks in parallel.
+    def batch_blake3_keyed: (
+      String key,
+      Array[String] data_array,
+      ?num_threads: Integer,
+      ?cancel_token: CancelToken?
+    ) -> Array[String?]
+
+    # Shuts down all thread-local Blake3 thread pools.
+    def shutdown_pool: -> void
+
+    # Computes the xorb hash from a list of chunk hashes and lengths using a Merkle tree.
+    def compute_xorb_hash: (Array[untyped] chunk_hashes_and_lengths) -> String
+
+    # Computes the file-level hash from a xorb hash.
+    def compute_file_hash: (String xorb_hash) -> String
+
+    # Computes a verification hash from an ordered list of chunk hashes.
+    def compute_verification_hash: (Array[String] chunk_hashes) -> String
+
+    private
+
+    def cdc_chunker: () -> CdcChunker
+    def thread_local_pool: (Integer size) -> Blake3Pool
+  end
+end

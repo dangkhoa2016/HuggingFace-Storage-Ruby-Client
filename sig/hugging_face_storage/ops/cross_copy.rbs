@@ -1,0 +1,8 @@
+module HuggingFaceStorage
+  class FileManager
+    class CrossCopy
+      def initialize: (api_client: ApiClient, bucket_id: String, logger: HFLogger | NullLogger) -> void
+      def copy_from: (source_type: String, source_repo: String, files: Array[Hash[Symbol, untyped]], ?cancel_token: CancelToken?) -> BatchResult
+    end
+  end
+end

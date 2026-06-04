@@ -1,0 +1,16 @@
+module HuggingFaceStorage
+  class DirectoryDownloader
+    def initialize: (api_client: ApiClient, xet_downloader: XetDownloader, bucket_id: String, ?logger: HFLogger?, ?config: Configuration?) -> void
+    def download: (Array[FileInfo] files, String normalized_base, String local_dir, ?parallel: Integer, ?cancel_token: CancelToken?) -> void
+
+    private
+
+    def download_worker: (Queue queue, Array[Hash[Symbol, untyped]] errors, Mutex mutex, CancelToken internal_token, String local_dir, String normalized_base) -> void
+    def record_worker_error: (Array[Hash[Symbol, untyped]] errors, Mutex mutex, CancelToken internal_token, FileInfo file_info, StandardError error, Integer retries) -> void
+    def raise_collected_errors: (Array[Hash[Symbol, untyped]] errors) -> void
+    def build_download_batches: (Array[FileInfo] files, String _normalized_base, String _local_dir, Integer num_threads) -> [Queue, Integer]
+    def execute_download_workers: (Queue queue, Integer num_threads, CancelToken? cancel_token, String normalized_base, String local_dir) -> void
+    def download_parallel: (Array[FileInfo] files, String normalized_base, String local_dir, Integer num_threads, CancelToken? cancel_token) -> void
+    def safe_local_path: (String local_dir, String relative_path, String original_path) -> String
+  end
+end

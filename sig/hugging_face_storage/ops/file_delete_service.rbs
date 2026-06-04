@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class FileDeleteService
+    include Instrumentation
+
+    def initialize: (api_client: ApiClient, bucket_id: String, config: Configuration, ?logger: HFLogger?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def delete: (String | Array[String] path, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> (bool | BatchResult)
+
+    private
+
+    def ensure_files_exist!: (Array[String] paths) -> void
+    def execute_delete_batches: (Array[String] paths, CancelToken? cancel_token, bool raise_on_partial_failure) -> BatchResult
+  end
+end

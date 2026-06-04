@@ -1,0 +1,125 @@
+module HuggingFaceStorage
+  class HttpConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader base_url: String
+    attr_reader idle_timeout: Integer
+    attr_reader open_timeout: Integer
+    attr_reader read_timeout: Integer
+    attr_reader write_timeout: Integer
+    attr_reader stream_chunk_size: Integer
+    attr_reader debug_mode: bool
+
+    def initialize: (
+      ?base_url: String,
+      ?idle_timeout: Integer,
+      ?open_timeout: Integer,
+      ?read_timeout: Integer,
+      ?write_timeout: Integer,
+      ?stream_chunk_size: Integer,
+      ?debug_mode: bool
+    ) -> void
+
+    def self.default: -> HttpConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class RetryConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader max_retries: Integer
+    attr_reader retry_delay: Integer
+    attr_reader max_retry_delay: Integer
+
+    def initialize: (
+      ?max_retries: Integer,
+      ?retry_delay: Integer,
+      ?max_retry_delay: Integer
+    ) -> void
+
+    def self.default: -> RetryConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class BatchConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader batch_size: Integer
+    attr_reader delete_batch_size: Integer
+    attr_reader copy_batch_size: Integer
+    attr_reader batch_threshold: Integer
+    attr_reader batch_memory_limit: Integer
+    attr_reader small_size_threshold: Integer
+
+    def initialize: (
+      ?batch_size: Integer,
+      ?delete_batch_size: Integer,
+      ?copy_batch_size: Integer,
+      ?batch_threshold: Integer,
+      ?batch_memory_limit: Integer,
+      ?small_size_threshold: Integer
+    ) -> void
+
+    def self.default: -> BatchConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class LogConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader body_log_max: Integer
+    attr_reader colorize_cache_max: Integer
+
+    def initialize: (?body_log_max: Integer, ?colorize_cache_max: Integer) -> void
+    def self.default: -> LogConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class CacheConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader metadata_cache_ttl: Integer
+    attr_reader xet_token_cache_size: Integer
+    attr_reader token_expiry_buffer: Integer
+
+    def initialize: (?metadata_cache_ttl: Integer, ?xet_token_cache_size: Integer, ?token_expiry_buffer: Integer) -> void
+    def self.default: -> CacheConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class ParallelConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader parallel_downloads: Integer
+    attr_reader parallel_verify: Integer
+    attr_reader stream_threshold: Integer
+
+    def initialize: (?parallel_downloads: Integer, ?parallel_verify: Integer, ?stream_threshold: Integer) -> void
+    def self.default: -> ParallelConfig
+
+    def to_h: -> Hash[Symbol, Object]
+  end
+
+  class EditConfig
+    include ConfigValidation
+    include ConfigDefaults
+
+    attr_reader max_edit_file_size: Integer?
+
+    def initialize: (?max_edit_file_size: Integer?) -> void
+    def self.default: -> EditConfig
+
+    def to_h: -> Hash[Symbol, Integer?]
+  end
+end

@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class FileCopyService
+    include Instrumentation
+
+    def initialize: (same_bucket: SameBucketCopyService, cross_repo: CrossRepoCopyService, copy_pipeline: CopyPipeline, ?logger: HFLogger?, ?config: Configuration?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def copy: (String source_path, String destination_path, ?overwrite: bool, ?cancel_token: CancelToken?) -> untyped
+    def copy_from: (source_type: String, source_repo: String, ?files: Array[Hash[Symbol, untyped]]?, ?source_path: String?, ?xet_hash: String?, ?destination: String?, ?overwrite: bool, ?cancel_token: CancelToken?) -> untyped
+    def copy_file: (source_type: String, source_repo: String, source_path: String, destination: String, ?revision: String, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+    def copy_files: (files: Array[Hash[Symbol, untyped]], ?overwrite: bool, ?on_progress: Proc?, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> Hash[Symbol, Integer]
+  end
+end

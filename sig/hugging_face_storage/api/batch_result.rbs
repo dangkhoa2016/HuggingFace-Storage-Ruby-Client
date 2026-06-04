@@ -1,0 +1,17 @@
+module HuggingFaceStorage
+  class BatchResult
+    attr_reader succeeded: Array[Hash[Symbol, Object]]
+    attr_reader failed: Array[Hash[Symbol, (String | untyped)]]
+
+    def initialize: -> void
+    def add_success: (Hash[Symbol, Object] entry) -> self
+    def add_failure: (String path, String? error) -> self
+    def success?: -> bool
+    def failure_count: -> Integer
+    def success_count: -> Integer
+    def merge!: (BatchResult other) -> self
+    def raise_if_any!: -> void
+    def to_h: -> Hash[Symbol, Array[Hash[Symbol, Object]]]
+    def empty?: -> bool
+  end
+end

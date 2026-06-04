@@ -1,0 +1,20 @@
+module HuggingFaceStorage
+  class CdcChunker
+    TARGET_CHUNK: Integer
+    MIN_CHUNK: Integer
+    MAX_CHUNK: Integer
+    MASK: Integer
+    HASH_WINDOW: Integer
+
+    def initialize: (gearhash_table: Array[Integer]) -> void
+    def self.gearhash_step: (Integer state, Integer byte) -> Integer
+    def feed: (String data) { (String) -> void } -> void
+    def finalize: () { (String) -> void } -> void
+    def cdc_chunk: (String data) -> Array[Array[Integer]]
+    def cdc_chunk_ruby: (String data) -> Array[Array[Integer]]
+
+    private
+
+    def chunk_boundary?: (Integer size) -> bool
+  end
+end

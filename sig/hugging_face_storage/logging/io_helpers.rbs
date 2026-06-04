@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class StripIO < SimpleDelegator
+    STRIP_RE: Regexp
+    def write: (String data) -> Integer
+  end
+
+  class TeeIO < SimpleDelegator
+    SPECIAL_STREAMS: Array[IO]
+    def initialize: (*untyped) -> void
+    def write: (String data) -> untyped
+    def close: -> void
+  end
+end

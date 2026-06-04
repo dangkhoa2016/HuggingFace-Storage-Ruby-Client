@@ -1,0 +1,24 @@
+# URI::Generic methods that exist in Ruby but are missing from Steep's bundled RBS.
+class URI::Generic
+  def request_uri: -> String
+  def host: -> String
+  def path: -> String
+  def query: -> String?
+  def query=: (String?) -> String?
+  def merge: (String) -> URI::Generic
+  def port: -> Integer
+  def scheme: -> String
+end
+
+# Steep incorrectly types URI.parse return as ::URI when it should be ::URI::Generic
+# Declare instance methods on ::URI module so Steep resolves them for URI instances
+module URI
+  def request_uri: -> String
+  def host: -> String
+  def path: -> String
+  def query: -> String?
+  def query=: (String?) -> String?
+  def merge: (String) -> URI::Generic
+  def port: -> Integer
+  def scheme: -> String
+end

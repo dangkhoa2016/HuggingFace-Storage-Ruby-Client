@@ -1,0 +1,61 @@
+# Thor CLI framework stub
+class Thor
+  class Error < StandardError
+  end
+
+  # Instance methods (available to Thor subclasses)
+  def say: (untyped message, ?String color, ?bool force_new_line) -> void
+  def error: (untyped message, ?String color) -> void
+  def ask: (String question, ?bold: bool, ?path: bool, ?limited_to: Array[String]) -> String
+  def options: -> Hash[Symbol, untyped]
+  def shell: -> untyped
+
+  # Class DSL methods
+  def self.desc: (String usage, String description) -> void
+  def self.option: (String | Symbol name, ?type: Symbol, ?default: untyped, ?aliases: String, ?banner: String, ?desc: String, ?required: bool, ?repeatable: bool, ?enum: Array[String]) -> void
+  def self.method_option: (String | Symbol name, ?type: Symbol, ?default: untyped, ?aliases: String, ?banner: String, ?desc: String, ?required: bool, ?repeatable: bool, ?enum: Array[String]) -> void
+  def self.class_option: (String | Symbol name, ?type: Symbol, ?default: untyped, ?aliases: String, ?banner: String, ?desc: String, ?required: bool, ?repeatable: bool, ?enum: Array[String]) -> void
+  def self.long_desc: (String description) -> void
+  def self.no_commands: { () -> void } -> void
+  def self.namespace: (String name) -> void
+  def self.exit_on_failure!: () -> void
+  def self.subcommand: (String name, Class klass) -> void
+end
+
+# CLI command modules need these methods since they're included into Thor subclasses
+module HuggingFaceStorage::CliCommands::Transfer
+  def say: (untyped message, ?String color, ?bool force_new_line) -> void
+  def error: (untyped message, ?String color) -> void
+  def ask: (String question, ?bold: bool, ?path: bool, ?limited_to: Array[String]) -> String
+  def options: -> Hash[Symbol, untyped]
+  def shared_client: (String bucket) -> untyped
+  def format_or_say: (untyped data) { -> void } -> void
+  def Array: (*untyped args) -> Array[untyped]
+  def raise: (Exception? exception, ?String message) -> untyped
+           | (Class exception_class, String message) -> untyped
+end
+
+module HuggingFaceStorage::CliCommands::Manage
+  def say: (untyped message, ?String color, ?bool force_new_line) -> void
+  def error: (untyped message, ?String color) -> void
+  def ask: (String question, ?bold: bool, ?path: bool, ?limited_to: Array[String]) -> String
+  def options: -> Hash[Symbol, untyped]
+  def shared_client: (String bucket) -> untyped
+  def format_or_say: (untyped data) { -> void } -> void
+end
+
+module HuggingFaceStorage::CliCommands::CopyCommands
+  def say: (untyped message, ?String color, ?bool force_new_line) -> void
+  def error: (untyped message, ?String color) -> void
+  def options: -> Hash[Symbol, untyped]
+  def shared_client: (String bucket) -> untyped
+  def format_or_say: (untyped data) { -> void } -> void
+end
+
+module HuggingFaceStorage::CliCommands::Advanced
+  def say: (untyped message, ?String color, ?bool force_new_line) -> void
+  def error: (untyped message, ?String color) -> void
+  def options: -> Hash[Symbol, untyped]
+  def shared_client: (String bucket) -> untyped
+  def format_or_say: (untyped data) { -> void } -> void
+end

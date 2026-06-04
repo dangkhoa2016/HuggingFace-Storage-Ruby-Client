@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+APP_ROOT = File.expand_path("..", __dir__)
+Dir.chdir(APP_ROOT) unless Dir.pwd == APP_ROOT
+
+require "json"
+
+passed = true
+
+def green(msg)
+  "\e[32m#{msg}\e[0m"
+end
+
+def red(msg)
+  "\e[31m#{msg}\e[0m"
+end
+
+# ── Step 1: run specs ──
+puts "==> Running test suite..."
+test_out = `bin/rspec 2>&1`
+test_exit = $?.exitstatus
+
+if test_exit == 0
+  puts green("    Tests: PASSED")
+else
+  puts red("    Tests: FAILED (exit=#{test_exit})")
+  puts test_out.lines.last(3).map { |l| "    #{l}" }.join
+  passed = false
+end
+
+# ── Step 2: coverage check ──
+resultset_path = "coverage/.last_run.json"
+if File.exist?(resultset_path)
+  data = JSON.parse(File.read(resultset_path))
+  cov = data.dig("result", "line") || 0
+  min_cov = ENV.fetch("MIN_COVERAGE", "25").to_f
+  if cov >= min_cov
+    puts green("    Coverage: #{cov.round(2)}% — OK (threshold: #{min_cov}%)")
+  else
+    puts red("    Coverage: #{cov.round(2)}% — below #{min_cov}%")
+    passed = false
+  end
+end
+
+# ── Step 3: RuboCop ──
+puts "==> Running RuboCop..."
+cop_out = `bundle exec rubocop --parallel --format simple 2>&1`
+cop_exit = $?.exitstatus
+
+if cop_exit == 0
+  puts green("    RuboCop: PASSED")
+else
+  puts red("    RuboCop: FAILED")
+  cop_out.each_line { |l| puts "    #{l}" }
+  passed = false
+end
+
+puts ""
+puts passed ? green("All checks passed!") : red("Some checks failed!")
+exit(passed ? 0 : 1)

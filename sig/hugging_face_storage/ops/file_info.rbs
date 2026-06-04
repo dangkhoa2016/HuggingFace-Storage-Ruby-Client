@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class FileInfo
+    attr_reader path: String
+    attr_reader size: Integer
+    attr_reader xet_hash: String?
+    attr_reader mtime: String?
+
+    def initialize: (path: String, size: Integer, ?xet_hash: String?, ?mtime: String?) -> void
+    def name: -> String
+    def directory: -> String?
+    def to_h: -> Hash[Symbol, (String | Integer)?]
+  end
+end

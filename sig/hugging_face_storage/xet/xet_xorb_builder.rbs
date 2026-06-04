@@ -1,0 +1,10 @@
+module HuggingFaceStorage
+  module XetXorbBuilder
+    SERIALIZE_HEADER_FMT: String
+    MAX_24BIT: Integer
+
+    def serialize_xorb: (Array[String] chunks_data) -> String
+    def pack_xorbs: (Array[Hash[Symbol, untyped]] all_chunks) -> Array[Hash[Symbol, untyped]]
+    def finalize_xorb: (Array[Hash[Symbol, untyped]] chunks) -> Hash[Symbol, untyped]
+  end
+end

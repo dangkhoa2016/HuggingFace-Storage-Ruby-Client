@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class BatchShardRegistrar
+    include CasClient
+    include TokenRetryable
+
+    def initialize: (hasher: XetHasher, api_client: ApiClient, token_manager: XetTokenManager, config: Configuration, logger: HFLogger?, http_pool: HttpPool, retryable: Retryable) -> void
+    def build_representations: (XetDataUploader::XorbBatchState state) -> void
+    def upload_and_register_shard: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, ?cancel_token: CancelToken?) -> void
+    def register_batch_files: (String bucket_id, XetDataUploader::XorbBatchState state, ?cancel_token: CancelToken?) -> void
+  end
+end

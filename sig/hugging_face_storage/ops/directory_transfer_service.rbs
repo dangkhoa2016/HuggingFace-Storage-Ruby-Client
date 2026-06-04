@@ -1,0 +1,10 @@
+module HuggingFaceStorage
+  class DirectoryTransferService
+    include Instrumentation
+
+    def initialize: (api_client: ApiClient, xet_uploader: XetUploader, xet_downloader: XetDownloader, bucket_id: String, file_manager: FileManager, ?config: Configuration?, ?logger: HFLogger?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def download: (String path, String local_dir, ?parallel: Integer, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+    def upload: (String local_dir, String remote_path, ?exclude: Array[String]?, ?cancel_token: CancelToken?) -> untyped
+    def snapshot_download: (String remote_path, String local_dir, ?verify: bool) -> untyped
+  end
+end

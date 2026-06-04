@@ -1,0 +1,6 @@
+module HuggingFaceStorage
+  module LocalFileCollector
+    def self.collect: (String local_dir, Array[String]? exclude) -> Array[String]
+    def collect: (String local_dir, Array[String]? exclude) -> Array[Hash[Symbol, untyped]]
+  end
+end

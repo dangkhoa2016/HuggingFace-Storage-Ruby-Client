@@ -1,0 +1,5 @@
+module HuggingFaceStorage
+  module Gearhash
+    def self?.cdc_chunk: (String data, Integer mask, Integer min_chunk, Integer max_chunk, Array[Integer] table) -> Array[[Integer, Integer]]
+  end
+end

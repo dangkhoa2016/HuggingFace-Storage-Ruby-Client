@@ -1,0 +1,19 @@
+# Path-based git attributes
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ruby sources
+*.rb text eol=lf
+*.rbs text eol=lf
+
+# YAML
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Markdown
+*.md text eol=lf diff=markdown
+
+# Binary files
+*.gem binary
+*.png binary
+*.jpg binary

@@ -1,0 +1,19 @@
+module HuggingFaceStorage
+  class Colorize
+    LEVEL_COLORS: Hash[String, String]
+    HIGHLIGHT_PATTERNS: Array[ [ Regexp, String ] ]
+    HIGHLIGHT_CHECK_RE: Regexp
+    COLORIZE_CACHE_MAX: Integer
+
+    self.@cache: Hash[String, Array[Hash[Symbol, (Integer | String)]]]
+
+    def self.colorize_message: (String level, String message) -> String
+    def self.clear_cache: -> void
+    def self.cache_size: -> Integer
+
+    private
+
+    def self.build_matches: (String message) -> Array[Hash[Symbol, (Integer | String)]]
+    def self.apply_highlights: (String message, Array[Hash[Symbol, (Integer | String)]] matches) -> String
+  end
+end

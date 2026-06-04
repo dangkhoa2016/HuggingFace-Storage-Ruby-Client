@@ -1,0 +1,32 @@
+module HuggingFaceStorage
+  class HFLogger
+    LEVELS: Hash[Symbol, Integer]
+    LEVEL_COLORS: Hash[String, String]
+    HIGHLIGHT_PATTERNS: Array[[Regexp, String]]
+    HIGHLIGHT_CHECK_RE: Regexp
+    COLORIZE_CACHE_MAX: Integer
+    FORMATS: Hash[Symbol, Proc]
+
+    def self.colorize_message: (String level, String message) -> String
+
+    def initialize: (?level: Symbol, ?output: IO?, ?format: Symbol | Proc, ?color: Symbol) -> void
+    def debug: (?String? message) ?{ () -> String } -> void
+    def info: (?String? message) ?{ () -> String } -> void
+    def warn: (?String? message) ?{ () -> String } -> void
+    def error: (?String? message) ?{ () -> String } -> void
+    def fatal: (?String? message) ?{ () -> String } -> void
+    def level: -> (Symbol | nil)
+    def level=: (Symbol | String | Integer) -> void
+    def close: -> void
+    def format: -> (Symbol | Proc)
+    def format=: (Symbol | Proc) -> void
+
+    private
+
+    def log: (Symbol level_sym, String? message) ?{ () -> String } -> void
+    def resolve_level: (Symbol | String | Integer level) -> Integer
+    def resolve_color: (Symbol | bool color, untyped io) -> bool
+    def resolve_output: (untyped output) -> untyped
+    def resolve_format: (Symbol | Proc format) -> Proc
+  end
+end

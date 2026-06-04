@@ -1,0 +1,19 @@
+module HuggingFaceStorage
+  class DirectoryUploader
+    def initialize: (api_client: ApiClient, xet_uploader: XetUploader, bucket_id: String, ?logger: HFLogger?, ?config: Configuration?) -> void
+    def upload: (String local_dir, String remote_base, ?exclude: Array[String]?, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+    include UploadExecution
+
+    private
+
+    def classify_files: (Array[[String, Integer]] file_stats) -> Hash[Symbol, untyped]
+
+    module UploadExecution
+      def execute_upload_flow: (String local_dir, String remote_base, Array[String] all_files, Hash[Symbol, untyped] classification, CancelToken? cancel_token) -> Hash[Symbol, untyped]
+      def build_batches: (Array[[String, Integer]] small_files) -> Array[Array[[String, Integer]]]
+      def upload_small_batches: (Array[Array[[String, Integer]]] batches, String local_dir, String remote_base, CancelToken? cancel_token, Integer total) -> Integer
+      def upload_large_files: (Array[[String, Integer]] large_files, String local_dir, String remote_base, CancelToken? cancel_token, Integer uploaded_so_far, Integer total) -> void
+    end
+  end
+end

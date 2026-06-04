@@ -1,0 +1,12 @@
+module HuggingFaceStorage
+  class PaginationService
+    MAX_CONCURRENCY: Integer
+
+    def initialize: (executor: untyped, ?logger: HFLogger?) -> void
+    def fetch_all: (URI first_uri, ?cancel_token: CancelToken?, ?max_concurrency: Integer, ?raise_on_partial_failure: bool) -> Array[Hash[String, Object]]
+
+    private
+
+    def extract_next_link: (Net::HTTPResponse response) -> String?
+  end
+end

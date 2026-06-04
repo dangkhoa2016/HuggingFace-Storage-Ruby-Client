@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  module TreeLoader
+    def self.load: (String | Array[Hash[Symbol, untyped] | Symbol] tree) -> Array[Hash[String | Symbol, untyped]]
+    def self.normalize_entry: (Hash[String | Symbol, untyped] | Symbol entry) -> Hash[String, untyped]
+
+    private
+
+    def load: (String | Array[Hash[Symbol, untyped] | Symbol] tree) -> Array[Hash[String | Symbol, untyped]]
+    def normalize_entry: (Hash[String | Symbol, untyped] | Symbol entry) -> Hash[String | Symbol, untyped]
+  end
+end

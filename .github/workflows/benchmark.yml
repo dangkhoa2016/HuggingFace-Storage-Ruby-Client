@@ -1,0 +1,60 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Compile native Gearhash extension
+        run: |
+          cd ext/gearhash
+          ruby extconf.rb
+          make
+          cp gearhash.so ../../src/hugging_face_storage/gearhash.so
+
+      - name: Verify native extension loaded
+        run: |
+          bundle exec ruby -I src -e '
+            require "hugging_face_storage"
+            HuggingFaceStorage::XetHasher.new
+            puts "Native Gearhash: #{HuggingFaceStorage::Gearhash.respond_to?(:cdc_chunk)}"
+          '
+
+      - name: Run upload benchmarks
+        run: bundle exec rake benchmark:upload 2>&1 | tee bench_upload.txt
+
+      - name: Run download benchmarks
+        run: bundle exec rake benchmark:download 2>&1 | tee bench_download.txt
+
+      - name: Run pipeline analysis
+        run: bundle exec rake benchmark:analysis 2>&1 | tee bench_analysis.txt
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            bench_upload.txt
+            bench_download.txt
+            bench_analysis.txt
+          retention-days: 30
+
+      - name: Post benchmark summary
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -20 bench_upload.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

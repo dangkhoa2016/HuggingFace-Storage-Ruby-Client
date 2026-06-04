@@ -1,0 +1,20 @@
+# Mixin providing operation instrumentation with metrics and notifications.
+module HuggingFaceStorage::Instrumentation
+  module InitializerOverride
+    def initialize: (*untyped) ?{ (?) -> untyped } -> void
+  end
+
+  METRIC_KEYS: Array[Symbol]
+
+  def instrument: (String name, ?Hash[Symbol, Object] payload) { () -> untyped } -> untyped
+
+  def record_metrics: (Hash[Symbol, Object] payload, Float elapsed) -> void
+
+  def track_increment: (Symbol metric, ?tags: Hash[Symbol, Object], ?by: Integer) -> void
+
+  def track_gauge: (Symbol metric, Numeric value, ?tags: Hash[Symbol, Object]) -> void
+
+  def track_measure: (Symbol metric, ?tags: Hash[Symbol, Object]) { () -> untyped } -> untyped
+
+  def publish: (String event, ?Hash[Symbol, Object] payload) -> void
+end

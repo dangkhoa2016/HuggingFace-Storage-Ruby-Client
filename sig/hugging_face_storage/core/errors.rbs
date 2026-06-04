@@ -1,0 +1,53 @@
+module HuggingFaceStorage
+  class Error < StandardError
+    def set_backtrace: (Array[String]? bt) -> void
+  end
+
+  class AuthenticationError < Error
+  end
+
+  class NotFoundError < Error
+  end
+
+  class ConflictError < Error
+  end
+
+  class ApiError < Error
+    attr_reader status: Integer?
+    attr_reader body: String?
+    attr_reader hint: String?
+
+    def initialize: (?status: Integer?, ?body: String?, ?message: String, ?hint: String?) -> void
+  end
+
+  class RateLimitError < ApiError
+    attr_reader retry_after: Integer?
+
+    def initialize: (?String message, ?retry_after: Integer?, ?status: Integer, ?body: String?) -> void
+  end
+
+  class ValidationError < ApiError
+    attr_reader errors: Hash[String, Object]
+
+    def initialize: (?String message, ?errors: Hash[String, Object], ?status: Integer, ?body: String?) -> void
+  end
+
+  class CancelledError < Error
+  end
+
+  class TimeoutError < Error
+  end
+
+  class PartialFailureError < Error
+    attr_reader result: BatchResult
+
+    def initialize: (String message, result: BatchResult) -> void
+  end
+
+  class PaginationError < Error
+    attr_reader pages_failed: Array[Integer]
+    attr_reader errors: Array[StandardError]
+
+    def initialize: (Array[Integer] pages_failed, Array[StandardError] errors) -> void
+  end
+end

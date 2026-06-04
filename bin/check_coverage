@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+
+RESULTSET = "coverage/.resultset.json"
+
+unless File.exist?(RESULTSET)
+  warn "ERROR: #{RESULTSET} not found — run tests with SimpleCov first"
+  exit 1
+end
+
+data = JSON.parse(File.read(RESULTSET))
+coverage_data = data.values.first["coverage"]
+
+threshold = 95.0
+failures = []
+
+coverage_data.each do |path, file_coverage|
+  next unless File.fnmatch?("*/src/**/*.rb", path, File::FNM_PATHNAME)
+
+  lines = file_coverage["lines"]
+  total = lines.count { |v| !v.nil? }
+  next if total.zero?
+
+  covered = lines.count { |v| !v.nil? && v > 0 }
+  missed = lines.count { |v| v == 0 }
+
+  percent = (covered * 100.0) / total
+
+  if percent < threshold
+    short = path.sub(/.*\/src\//, "src/")
+    failures << [short, total, missed, percent]
+  end
+end
+
+if failures.empty?
+  puts "All src/ files have >= #{threshold}% coverage (using #{RESULTSET})"
+  exit 0
+end
+
+printf "%-75s %8s %8s %10s\n", "File", "Lines", "Missed", "Coverage"
+puts "-" * 105
+failures.each do |short, total, missed, percent|
+  printf "%-75s %8d %8d %9.2f%%\n", short, total, missed, percent
+end
+
+exit 1

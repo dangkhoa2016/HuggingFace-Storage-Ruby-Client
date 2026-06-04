@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class DirInfo
+    attr_reader path: String
+    attr_reader file_count: Integer?
+    attr_reader total_size: Integer?
+    attr_reader uploaded_at: String?
+
+    def initialize: (path: String, ?file_count: Integer?, ?total_size: Integer?, ?uploaded_at: String?) -> void
+    def name: -> String
+    def parent: -> String?
+    def to_h: -> Hash[Symbol, (String | Integer)?]
+  end
+end

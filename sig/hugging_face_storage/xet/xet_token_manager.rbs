@@ -1,0 +1,19 @@
+module HuggingFaceStorage
+  class XetTokenManager
+    DEFAULT_TOKEN_TTL: Integer
+
+    @write_token_cache: Hash[String, Hash[Symbol, untyped]]
+    @read_token_cache: Hash[String, Hash[Symbol, untyped]]
+
+    def initialize: (api_client: ApiClient, ?logger: HFLogger?, ?config: Configuration?) -> void
+    def fetch_write_token: (String bucket_id) -> Hash[Symbol, untyped]
+    def fetch_read_token: (String bucket_id) -> Hash[Symbol, untyped]
+    def invalidate_write_token: (String bucket_id) -> void
+    def invalidate_read_token: (String bucket_id) -> void
+
+    private
+
+    def fetch_token: (String bucket_id, Symbol api_method, Hash[String, Hash[Symbol, untyped]] cache, Mutex mutex) -> Hash[Symbol, untyped]
+    def evict_if_needed: (Hash[String, Hash[Symbol, untyped]] cache) -> void
+  end
+end

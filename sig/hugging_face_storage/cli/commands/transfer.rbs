@@ -1,0 +1,16 @@
+module HuggingFaceStorage
+  module CliCommands
+    module Transfer
+      Error: singleton(HuggingFaceStorage::Error)
+
+      def upload: (String bucket, String local_path, ?String? remote_path) -> void
+      def download: (String bucket, String remote_path, String local_path) -> void
+
+      private
+
+      def upload_directory: (untyped client, String local_path, String remote_path) -> void
+      def upload_glob: (untyped client, String local_path, String remote_path) -> void
+      def upload_file: (untyped client, String local_path, String remote_path) -> void
+    end
+  end
+end

@@ -1,0 +1,25 @@
+module HuggingFaceStorage
+  interface _SnapshotAPI
+    def verify_files: (String local_dir, Hash[String, untyped] manifest, ?verify_content: bool) -> Array[Hash[Symbol, untyped]]
+  end
+
+  class Snapshot
+    METADATA_FILENAME: String
+
+    def initialize: (api_client: ApiClient, xet_downloader: XetDownloader, file_manager: FileManager, directory_manager: untyped, bucket_id: String, ?logger: HFLogger?, ?config: Configuration?) -> void
+    def download: (String remote_path, String local_dir, ?verify: bool, ?verify_content: bool) -> Hash[Symbol, untyped]
+    def verify_files: (String local_dir, Hash[String, untyped] manifest, ?verify_content: bool) -> Array[Hash[Symbol, untyped]]
+    def self.load_manifest: (String local_dir) -> Hash[String, untyped]?
+
+    include SnapshotHelpers
+
+    module SnapshotHelpers : _SnapshotAPI
+      private
+
+      def download_with_manifest: (Array[FileInfo] files, String normalized, String local_dir, bool verify, bool verify_content) -> Hash[Symbol, untyped]
+      def check_file_sizes: (Array[Hash[String, untyped]] files_list, String source_prefix, String local_dir, Array[Hash[Symbol, untyped]] mismatches, bool verify_content) -> Array[Hash[Symbol, untyped]]
+      def verify_sha256_in_parallel: (Array[Hash[Symbol, untyped]] needs_sha256, Array[Hash[Symbol, untyped]] mismatches) -> void
+      def build_manifest: (Array[FileInfo] files, String source_prefix, String local_dir, ?compute_sha256: bool) -> Hash[String, untyped]
+    end
+  end
+end

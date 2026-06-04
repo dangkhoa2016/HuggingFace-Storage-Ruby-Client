@@ -1,0 +1,24 @@
+module HuggingFaceStorage
+  module EntryClassifier
+    def self.classify: (Array[Hash[Symbol | String, untyped]] entries, source_type: String, source_repo: String, revision: String?, destination_mapper: ^(Hash[Symbol | String, untyped]) -> String, ?debug_mode: bool, ?path_infos: Array[Hash[String, untyped]]?) -> Hash[Symbol, untyped]
+    def self.build_copy_op: (String path, String xet_hash, String source_type, String source_repo) -> Hash[Symbol, untyped]
+    def self.resolve_source_path: (Hash[Symbol, untyped] entry) -> String
+
+    private
+
+    def self.build_entry_mapping: (Array[Hash[Symbol | String, untyped]] entries, String source_type, String source_repo, String? revision, Proc destination_mapper, bool debug_mode, Array[Hash[String, untyped]]? path_infos) -> Hash[Symbol, untyped]
+    def self.build_remote_path: (untyped entry, Proc destination_mapper, untyped _source_base) -> String
+    def self.build_classified_entry: (untyped entry, String remote_path, Hash[String, untyped] info, String source_type, String source_repo, String? revision, Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] lfs_offenders, Array[Hash[Symbol, untyped]] pending_downloads) -> void
+    def self.build_path_lookup: (Array[Hash[String, untyped]]? path_infos) -> Hash[String, Hash[String, untyped]]
+    def self.handle_missing_entry: (Hash[String, untyped]? info, String src_path, String source_type, String source_repo, String? revision, bool debug_mode, Array[Hash[String, untyped]]? path_infos) -> void
+
+    def build_entry_mapping: (Array[Hash[Symbol | String, untyped]] entries, String source_type, String source_repo, String? revision, Proc destination_mapper, bool debug_mode, Array[Hash[String, untyped]]? path_infos) -> Hash[Symbol, untyped]
+    def build_remote_path: (untyped entry, Proc destination_mapper, untyped _source_base) -> String
+    def build_classified_entry: (untyped entry, String remote_path, Hash[String, untyped] info, String source_type, String source_repo, String? revision, Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] lfs_offenders, Array[Hash[Symbol, untyped]] pending_downloads) -> void
+    def build_copy_op: (String path, String xet_hash, String source_type, String source_repo) -> Hash[Symbol, untyped]
+    def resolve_source_path: (Hash[Symbol | String, untyped] entry) -> String
+    def classify: (Array[Hash[Symbol | String, untyped]] entries, source_type: String, source_repo: String, revision: String?, destination_mapper: ^(Hash[Symbol | String, untyped]) -> String, ?debug_mode: bool, ?path_infos: Array[Hash[String, untyped]]?) -> Hash[Symbol, untyped]
+    def build_path_lookup: (Array[Hash[String, untyped]]? path_infos) -> Hash[String, Hash[String, untyped]]
+    def handle_missing_entry: (Hash[String, untyped]? info, String src_path, String source_type, String source_repo, String? revision, bool debug_mode, Array[Hash[String, untyped]]? path_infos) -> void
+  end
+end

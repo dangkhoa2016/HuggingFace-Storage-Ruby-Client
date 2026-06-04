@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class CancelToken
+    @on_cancel: Array[^() -> void]
+
+    def initialize: (?logger: HFLogger?) -> void
+    def cancel!: -> self
+    def cancelled?: -> bool
+    def raise_if_cancelled!: -> void
+    def on_cancel: () { () -> void } -> self
+    def cancel_subscription: (^() -> void block) -> void
+    def self.none: -> CancelToken
+  end
+end

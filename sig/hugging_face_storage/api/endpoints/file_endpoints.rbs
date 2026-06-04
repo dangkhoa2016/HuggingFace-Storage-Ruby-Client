@@ -1,0 +1,23 @@
+module HuggingFaceStorage
+  module FileEndpoints
+    def file_exists?: (String bucket_id, String path) -> bool
+
+    def list_repo_files: (String repo_type, String repo_name, ?path: String?, ?revision: String?, ?recursive: bool) -> Array[untyped]
+
+    def stream_with_redirect: (URI uri, ?max_redirects: Integer, ?cancel_token: CancelToken?) { (Object) -> void } -> void
+
+    def request_with_redirect: (URI uri, ?max_redirects: Integer, ?cancel_token: CancelToken?, ?streaming: bool) { (Object) -> void } -> void
+
+    def post_ndjson: (String path, Array[Object] operations, ?cancel_token: CancelToken?) -> Array[untyped]
+
+    def batch: (String bucket_id, Array[Object] operations, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> Hash[Symbol, Object]
+
+    def download_repo_file: (String repo_type, String repo_name, String path, ?revision: String?, ?cancel_token: CancelToken?) -> String
+
+    def download_repo_file_streaming: (String repo_type, String repo_name, String path, ?revision: String?, ?cancel_token: CancelToken?) { (String) -> void } -> void
+
+    private
+
+    def redirect_follower: -> RedirectFollower
+  end
+end

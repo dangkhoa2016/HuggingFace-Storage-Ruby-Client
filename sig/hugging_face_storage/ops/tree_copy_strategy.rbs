@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class CrossRepoCopyService
+    class TreeCopyStrategy
+      def initialize: (api_client: ApiClient, file_manager: FileManager, bucket_id: String, logger: HFLogger | NullLogger) -> void
+      def call: (tree: String | Array[Hash[Symbol, untyped] | Symbol], source_type: String, source_repo: String, ?source_prefix: String?, ?destination_prefix: String?, ?exclude: Array[String]?, ?overwrite: bool, ?cancel_token: CancelToken?) -> Hash[Symbol, (Integer | String)]
+
+      private
+
+      def filter_tree_entries: (Array[Hash[String | Symbol, untyped]] entries, String? source_prefix, Array[String]? exclude) -> Array[Hash[String | Symbol, untyped]]
+      def build_destination_map: (Array[Hash[String | Symbol, untyped]] entries, String? source_prefix, String? destination_prefix) -> Array[Hash[Symbol, untyped]]
+      def skip_existing_files: (Array[Hash[Symbol, untyped]] files) -> Integer
+    end
+  end
+end

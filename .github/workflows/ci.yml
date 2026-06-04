@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.8"
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop --parallel
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.8"
+          bundler-cache: true
+      - name: Bundle Audit
+        run: bundle exec bundle-audit check --update
+
+  test:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.allow_failure || false }}
+    strategy:
+      matrix:
+        include:
+          - ruby-version: "2.7"
+          - ruby-version: "3.0"
+          - ruby-version: "3.1"
+          - ruby-version: "3.2"
+          - ruby-version: "3.3"
+          - ruby-version: "3.4"
+          - ruby-version: "4.0"
+            allow_failure: true
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Compile native Gearhash extension
+        run: |
+          cd ext/gearhash
+          ruby extconf.rb
+          make
+          cp gearhash.so ../../src/hugging_face_storage/gearhash.so
+
+      - name: Run tests
+        run: bin/rspec
+
+      - name: Check coverage
+        run: bin/check_coverage
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.8"
+          bundler-cache: true
+      - name: Run integration and slow tests
+        run: bundle exec rspec --tag integration --tag slow --format progress
+        env:
+          COVERAGE: true
+
+  type_check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - ruby-version: "2.7.8"
+          - ruby-version: "3.0"
+          - ruby-version: "3.3"
+          - ruby-version: "3.4.9"
+          - ruby-version: "4.0"
+            allow_failure: true
+    continue-on-error: ${{ matrix.allow_failure || false }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+      - name: Validate RBS signatures
+        run: bundle exec rbs validate
+      - name: Static type check with Steep
+        env:
+          STEEP_LOG_LEVEL: fatal
+        run: |
+          output=$(bundle exec steep check --severity-level=error 2>&1) || true
+          echo "$output"
+          if echo "$output" | grep -v "rbs-3.6.1" | grep -q "\[error\]"; then
+            exit 1
+          fi
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.8"
+          bundler-cache: true
+      - name: Check examples syntax
+        run: |
+          ruby -c examples/usage.rb
+          ruby -c examples/usage.vi.rb
+      - name: Run examples spec
+        run: bin/rspec spec/examples_spec.rb

@@ -1,0 +1,6 @@
+# Mixin for retrying CAS operations with automatic token refresh on auth failure.
+module HuggingFaceStorage::TokenRetryable
+  private
+
+  def with_token_retry: (String bucket_id, label: (Symbol | String)) { (String) -> Object } -> Object
+end

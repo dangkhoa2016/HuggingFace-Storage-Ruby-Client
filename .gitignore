@@ -1,0 +1,31 @@
+# Logs
+logs
+*.log
+spec/test.log
+
+temp
+coverage
+
+# C extension build artifacts (ext/gearhash and any copied .so)
+ext/gearhash/Makefile
+ext/gearhash/*.o
+ext/gearhash/*.so
+ext/gearhash/mkmf.log
+src/hugging_face_storage/gearhash.so
+**/*.bundle
+
+# Gem
+Gemfile.lock
+*.gem
+
+# Docs
+docs/
+.yardoc/
+
+# Editor / OS artifacts
+.DS_Store
+*.bak
+*~
+.vscode/
+.idea/
+.qoder/

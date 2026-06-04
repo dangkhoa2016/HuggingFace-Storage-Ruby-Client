@@ -1,0 +1,32 @@
+module HuggingFaceStorage
+  class Client
+    attr_reader files: FileManager
+    attr_reader directories: DirectoryManager
+    attr_reader bucket_id: String
+    attr_reader logger: HFLogger
+    attr_reader config: Configuration
+
+    def self.new: (*untyped, **untyped) ?{ (untyped) -> void } -> Client
+
+    def initialize: (
+      files: FileManager,
+      directories: DirectoryManager,
+      logger: HFLogger,
+      config: Configuration,
+      auth: Authentication,
+      api: ApiClient,
+      bucket_id: String,
+      ?metrics_registry: Object?,
+      ?notifications: Object?
+    ) -> void
+
+    def bucket_info: -> Hash[String, Object]
+    def list_buckets: (?namespace: String?) -> Array[Hash[String, Object]]
+    def log_level: -> (Symbol | nil)
+    def log_level=: (Symbol) -> void
+    def log_format: -> (Symbol | Proc)
+    def log_format=: (Symbol | Proc) -> void
+    def debug_mode: -> bool
+    def close: -> void
+  end
+end

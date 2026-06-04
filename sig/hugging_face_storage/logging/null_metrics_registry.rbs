@@ -1,0 +1,10 @@
+module HuggingFaceStorage
+  class NullMetricsRegistry
+    def increment: (*untyped) -> nil
+    def gauge: (*untyped) -> nil
+    def measure: (*untyped) { () -> untyped } -> untyped
+    def observe: (*untyped) -> nil
+
+    def self.instance: () -> NullMetricsRegistry
+  end
+end

@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class DirectoryCopyService
+    include Instrumentation
+
+    def initialize: (same_bucket_copy: SameBucketCopyService, cross_repo_copy: CrossRepoCopyService, copy_pipeline: CopyPipeline, ?config: Configuration?, ?logger: HFLogger?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def copy_from_tree: (source_type: String, source_repo: String, tree: String | Array[Hash[Symbol, untyped] | Symbol], ?source_prefix: String?, ?destination_prefix: String?, ?exclude: Array[String]?, ?overwrite: bool, ?cancel_token: CancelToken?) -> untyped
+    def copy_from_repo: (source_type: String, source_repo: String, ?source_path: String?, ?destination_prefix: String?, ?revision: String, ?exclude: Array[String]?, ?overwrite: bool, ?cancel_token: CancelToken?) -> untyped
+    def copy: (String source_path, String destination_path, ?source_type: String?, ?source_repo: String?, ?revision: String, ?exclude: Array[String]?, ?overwrite: bool) -> untyped
+    def copy_folders: (folders: Array[Hash[Symbol, untyped]], ?overwrite: bool, ?on_progress: Proc?, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> untyped
+  end
+end

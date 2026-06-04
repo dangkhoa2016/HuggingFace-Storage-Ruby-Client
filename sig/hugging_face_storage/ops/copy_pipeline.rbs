@@ -1,0 +1,59 @@
+module HuggingFaceStorage
+  # Orchestrates copy operations between source repos and a destination bucket.
+  class CopyPipeline
+    include Instrumentation
+    include ExecutionHelpers
+
+    # Data object holding copy result counters.
+    class Result
+      attr_reader xet_copied: Integer
+      attr_reader files_downloaded: Integer
+      attr_reader total: Integer
+      attr_reader skipped: Integer
+
+      def initialize: (Integer xet_copied, Integer files_downloaded, Integer total, Integer skipped) -> void
+    end
+
+    def initialize: (
+      api_client: ApiClient,
+      xet_uploader: XetUploader,
+      bucket_id: String,
+      ?logger: HFLogger?,
+      ?config: Configuration?,
+      ?metrics_registry: Object?,
+      ?notifications: Object?
+    ) -> void
+
+    # Runs the full copy pipeline for the given file list.
+    def call: (
+      files: Array[Hash[Symbol, untyped]],
+      ?overwrite: bool,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?,
+      ?raise_on_partial_failure: bool
+    ) -> Result
+
+    # Executes pre-classified copy operations and pending downloads.
+    def execute: (
+      copy_ops: Array[Hash[Symbol, untyped]],
+      pending_downloads: Array[Hash[Symbol, untyped]],
+      ?cancel_token: CancelToken?,
+      ?raise_on_partial_failure: bool
+    ) -> Hash[Symbol, (Integer | String)]
+
+    private
+
+    def normalize_destinations: (Array[Hash[Symbol, untyped]] files) -> Array[Hash[Symbol, untyped]]
+    def group_by_source: (Array[Hash[Symbol, untyped]] files) -> Hash[String, Hash[Symbol, untyped]]
+    def classify_groups: (Hash[String, Hash[Symbol, untyped]] groups, Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] pending_downloads, ?cancel_token: CancelToken?) -> void
+    def filter_existing: (Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] pending_downloads) -> Integer
+
+    module ExecutionHelpers
+      private
+
+      def fetch_path_infos: (Hash[Symbol, untyped] group, String? effective_revision, CancelToken? cancel_token) -> Array[Hash[String, untyped]]
+      def execute_downloads: (Array[Hash[Symbol, untyped]] pending_downloads, Array[Hash[Symbol, untyped]] copy_ops, ?cancel_token: CancelToken?, ?on_progress: Proc?) -> void
+      def execute_batch: (Array[Hash[Symbol, untyped]] copy_ops, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> void
+    end
+  end
+end

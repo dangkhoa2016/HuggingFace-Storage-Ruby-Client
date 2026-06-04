@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  module ResponseFields
+    TYPE: String
+    PATH: String
+    SIZE: String
+    XET_HASH: String
+    MTIME: String
+    LFS: String
+
+    FILE_TYPE: String
+    DIR_TYPE: String
+  end
+end

@@ -1,0 +1,23 @@
+module HuggingFaceStorage
+  # Thor subcommand for bucket-level operations (list, info).
+  class BucketsCLI < Thor
+    def list: (?String? namespace) -> void
+    def info: (String bucket) -> void
+  end
+
+  # Main Thor CLI for HuggingFace storage operations.
+  class CLI < Thor
+    BUCKET_PATTERN: Regexp
+    include CliCommands::Transfer
+    include CliCommands::Manage
+    include CliCommands::CopyCommands
+    include CliCommands::Advanced
+
+    @shared_client: Hash[String, Client]
+
+    def shared_client: (String bucket) -> Client
+
+    def dispatch: (Symbol method_name, Module mod, *untyped args) -> void
+
+  end
+end

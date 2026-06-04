@@ -1,0 +1,7 @@
+module HuggingFaceStorage
+  module ManagementEndpoints
+    def get_xet_token: (String bucket_id, String type) -> Hash[Symbol, (String | Integer)?]
+    def get_xet_write_token: (String bucket_id) -> Hash[Symbol, (String | Integer)?]
+    def get_xet_read_token: (String bucket_id) -> Hash[Symbol, (String | Integer)?]
+  end
+end

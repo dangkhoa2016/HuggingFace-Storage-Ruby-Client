@@ -1,0 +1,41 @@
+module HuggingFaceStorage
+  module ApiOperations
+    ADD_FILE: String
+    DELETE_FILE: String
+    COPY_FILE: String
+  end
+
+  module ApiPaths
+    ADD_FILE: String
+    DELETE_FILE: String
+    COPY_FILE: String
+    BASE_URL: String
+    CONTENT_TYPE_NDJSON: String
+    CONTENT_TYPE_JSON: String
+    CONTENT_TYPE_OCTET: String
+    RETRYABLE_HTTP_STATUSES: Array[Integer]
+    REDIRECT_CODES: Array[Integer]
+
+    module Status
+      OK: Range[Integer]
+      UNAUTHORIZED: Integer
+      FORBIDDEN: Integer
+      NOT_FOUND: Integer
+      CONFLICT: Integer
+      UNPROCESSABLE: Integer
+      TOO_MANY_REQUESTS: Integer
+      SERVER_ERRORS: Range[Integer]
+    end
+
+    def self.bucket_path: (String bucket_id, *String parts) -> String
+    def self.xet_token_path: (String bucket_id, String type) -> String
+    def self.paths_info_path: (String bucket_id) -> String
+    def self.tree_path: (String bucket_id, ?String? path) -> String
+    def self.batch_path: (String bucket_id) -> String
+    def self.repo_tree_path: (String repo_type, String repo_name) -> String
+    def self.repo_paths_info_path: (String repo_type, String repo_name) -> String
+    def self.resolve_path: (String bucket_id, String path) -> String
+    def self.buckets_path: (String namespace) -> String
+    def self.bucket_info_path: (String bucket_id) -> String
+  end
+end

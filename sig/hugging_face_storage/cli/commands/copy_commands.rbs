@@ -1,0 +1,8 @@
+module HuggingFaceStorage
+  module CliCommands
+    module CopyCommands
+      def copy: (String bucket, String source, String dest) -> void
+
+    end
+  end
+end

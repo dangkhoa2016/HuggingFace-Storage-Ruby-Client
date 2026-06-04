@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# frozen_string_literal: true
+#
+# Pre-commit hook that runs lint and type checks on staged Ruby files.
+#
+# Installation:
+#   git config core.hooksPath .githooks
+#
+# To skip hooks:
+#   git commit --no-verify
+
+set -euo pipefail
+
+APP_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$APP_ROOT"
+
+STAGED_RB=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.rb$' || true)
+
+if [ -z "$STAGED_RB" ]; then
+  exit 0
+fi
+
+echo "==> Checking RuboCop on staged files..."
+if command -v bundle &>/dev/null; then
+  bundle exec rubocop --force-exclusion $STAGED_RB 2>/dev/null || {
+    echo "ERROR: RuboCop found offenses. Fix them or use --no-verify to skip."
+    exit 1
+  }
+else
+  echo "  (bundler not available, skipping RuboCop)"
+fi
+
+echo "==> All checks passed."

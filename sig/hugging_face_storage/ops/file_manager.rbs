@@ -1,0 +1,107 @@
+module HuggingFaceStorage
+  class FileManager
+    def initialize: (
+      api_client: ApiClient,
+      xet_uploader: XetUploader,
+      xet_downloader: XetDownloader,
+      bucket_id: String,
+      upload_service: FileUploadService,
+      delete_service: FileDeleteService,
+      copy_service: FileCopyService,
+      ?logger: HFLogger,
+      ?config: Configuration
+    ) -> void
+
+    def upload: (
+      String local_path,
+      String remote_path,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?,
+      ?exclude: (String | Array[String])?
+    ) -> Hash[Symbol, (String | Integer)]
+
+    def upload_bytes: (
+      String data,
+      String remote_path,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, (String | Integer)]
+
+    def download: (
+      String remote_path,
+      ?String local_path,
+      ?cancel_token: CancelToken?
+    ) -> (String | XetLazyFile)
+
+    def open: (String path) -> XetLazyFile
+
+    def list: (
+      ?prefix: String?,
+      ?recursive: bool,
+      ?lazy: bool
+    ) -> (Array[FileInfo] | Enumerator[FileInfo])
+
+    def exists?: (String path) -> bool
+
+    def metadata: (
+      String path
+    ) -> FileInfo
+
+    def delete: (
+      (String | Array[String]) path,
+      ?cancel_token: CancelToken?,
+      ?raise_on_partial_failure: bool
+    ) -> (bool | BatchResult)
+
+    def move: (String source_path, String destination_path, ?overwrite: bool, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+    def rename: (String old_path, String new_path, ?overwrite: bool, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+    def copy: (
+      (String | Array[String]) source_path,
+      String destination_path,
+      ?overwrite: bool
+    ) -> (Hash[Symbol, untyped] | Array[Hash[Symbol, untyped]])
+
+    def edit: (
+      String path,
+      edits: Array[Hash[Symbol, untyped]],
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, untyped]
+
+    def copy_from: (
+      ?source_type: String,
+      ?source_repo: String,
+      ?files: Array[Hash[Symbol, untyped]]?,
+      ?source_path: String?,
+      ?xet_hash: String?,
+      ?destination: String?,
+      ?overwrite: bool,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, untyped]
+
+    def copy_file: (
+      source_type: String,
+      source_repo: String,
+      source_path: String,
+      destination: String,
+      ?revision: String,
+      ?overwrite: bool,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, untyped]
+
+    def copy_files: (
+      files: Array[Hash[Symbol, untyped]],
+      ?overwrite: bool,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?,
+      ?raise_on_partial_failure: bool
+    ) -> Hash[Symbol, untyped]
+
+    private
+
+    def ensure_file_exists!: (String path) -> void
+    def ensure_files_exist!: (Array[String] paths) -> void
+    def fetch_info: (String path) -> Hash[Symbol, untyped]
+  end
+end

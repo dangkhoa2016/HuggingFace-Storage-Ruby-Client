@@ -1,0 +1,3 @@
+module HuggingFaceStorage
+  GEARHASH_TABLE: Array[Integer]
+end

@@ -1,0 +1,13 @@
+class String
+  def <<: (nil) -> String
+end
+
+module HuggingFaceStorage
+  class XetSerializer
+    include XetXorbBuilder
+    include XetShardBuilder
+
+    def initialize: (?XetHasher? hasher) -> void
+    def stream_representation_builder: -> XetStreamRepresentationBuilder
+  end
+end

@@ -1,0 +1,6 @@
+module HuggingFaceStorage
+  module ExcludeMatcher
+    def self.match?: (String path, String | Array[String] patterns) -> bool
+    def match?: (String path, Array[String]? patterns) -> bool
+  end
+end

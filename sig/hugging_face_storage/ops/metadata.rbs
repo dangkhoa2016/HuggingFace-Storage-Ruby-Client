@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  class FileManager
+    class Metadata
+      def initialize: (api_client: ApiClient, bucket_id: String, logger: HFLogger | NullLogger) -> void
+      def metadata: (String path) -> FileInfo
+      def exists?: (String path) -> bool
+    end
+  end
+end

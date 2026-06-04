@@ -1,0 +1,18 @@
+module HuggingFaceStorage
+  class RequestLogger
+    SENSITIVE_HEADERS: Array[String]
+    SENSITIVE_LOOKUP: Hash[String, bool]
+    TEXT_CONTENT_TYPES: Array[String]
+    USEFUL_REQUEST_HEADERS: Array[String]
+    USEFUL_RESPONSE_HEADERS: Array[String]
+
+    def initialize: (logger: HFLogger?, config: Configuration) -> void
+    def log_request: (URI uri, Net::HTTPRequest request) -> void
+    def log_response: (URI _uri, Net::HTTPResponse response) -> void
+
+    private
+
+    def mask_sensitive: (String key, String value) -> String
+    def format_body: (String? body) -> String
+  end
+end

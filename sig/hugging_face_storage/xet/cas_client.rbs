@@ -1,0 +1,16 @@
+# Client module for uploading data to a Content-Addressable Storage (CAS) server.
+module HuggingFaceStorage::CasClient
+  private
+
+  def metrics_registry: -> untyped
+
+  def upload_xorb: (String cas_url, String token, String xorb_hash, String xorb_data, ?cancel_token: untyped) -> void
+
+  def upload_shard: (String cas_url, String token, String shard_data, ?cancel_token: untyped) -> void
+
+  def cas_post: (String url, String token, String data, String label, ?cancel_token: untyped) -> void
+
+  def perform_cas_post: (URI uri, String token, String data, untyped pool, untyped retryable, untyped config, untyped cancel_token) -> Net::HTTPResponse
+
+  def handle_cas_response: (Net::HTTPResponse resp, String label) -> void
+end

@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class SourceIterator
+    def initialize: (api: ApiClient, bucket_id: String, ?logger: HFLogger?, ?debug_mode: bool) -> void
+    def iterate_and_classify: (Array[untyped] sources) { (CopyPlanBuilder, untyped) -> Hash[Symbol, untyped] } -> [Array[untyped], Array[untyped], Array[untyped]]
+    def wrap_source_result: (Hash[Symbol, untyped] result, from: String, to: String?, source_base: String) -> Hash[Symbol, untyped]
+    def skip_existing: (Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] pending_downloads, Array[Hash[Symbol, untyped]] source_results) -> [Array[Hash[Symbol, untyped]], Array[Hash[Symbol, untyped]], Integer]
+
+    private
+
+    def build_existing_set: (Array[Hash[Symbol, untyped]] copy_ops, Array[Hash[Symbol, untyped]] pending_downloads) -> Set[String]
+    def file_exists?: (String path, Set[String] existing) -> bool
+    def log_skip_result: (Integer skipped, Array[Hash[Symbol, untyped]] filtered_ops, Array[Hash[Symbol, untyped]] filtered_downloads, Array[Hash[Symbol, untyped]] source_results) -> void
+  end
+end

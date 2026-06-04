@@ -1,0 +1,3 @@
+module HuggingFaceStorage
+  FIELD_MAP: Hash[Symbol, Object]
+end

@@ -1,0 +1,12 @@
+module HuggingFaceStorage
+  class XetStreamRepresentationBuilder
+    @ranges: Array[Hash[Symbol, untyped]]
+    @xorb_hashes: Array[String]
+
+    def initialize: (XetHasher hasher) -> void
+    def start_xorb: -> void
+    def add_chunk: (String chunk_hash, Integer chunk_length) -> void
+    def finalize_xorb: (String? xorb_hash) -> void
+    def finalize: -> Array[Hash[Symbol, untyped]]
+  end
+end

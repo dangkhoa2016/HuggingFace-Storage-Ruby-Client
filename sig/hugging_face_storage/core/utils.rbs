@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  module Utils
+    def self.hash_to_hex: (String hash_bytes) -> String
+    def self.human_size: (Integer bytes) -> String
+    def self.extract_next_link: (Net::HTTPResponse response) -> String?
+
+    def hash_to_hex: (String hash_bytes) -> String
+    def human_size: (Integer bytes) -> String
+    def extract_next_link: (Net::HTTPResponse response) -> String?
+  end
+end

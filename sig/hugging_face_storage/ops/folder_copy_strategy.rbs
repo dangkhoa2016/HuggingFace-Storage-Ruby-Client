@@ -1,0 +1,12 @@
+module HuggingFaceStorage
+  class CrossRepoCopyService
+    class FolderCopyStrategy
+      def initialize: (api_client: ApiClient, source_iterator: SourceIterator, logger: HFLogger | NullLogger) -> void
+      def call: (folders: Array[Hash[Symbol, untyped]], cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+      private
+
+      def process_folder_sources: (Array[Hash[Symbol, untyped]] folders, CancelToken? cancel_token) -> Array[Array[Hash[Symbol, untyped]]]
+    end
+  end
+end

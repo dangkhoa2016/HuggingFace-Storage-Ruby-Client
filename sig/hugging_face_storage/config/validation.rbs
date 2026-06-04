@@ -1,0 +1,8 @@
+module HuggingFaceStorage
+  module ConfigValidation
+    private
+
+    def validate_positive: (untyped value, String name) -> untyped
+    def validate_non_negative: (untyped value, String name) -> untyped
+  end
+end

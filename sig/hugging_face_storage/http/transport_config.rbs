@@ -1,0 +1,5 @@
+module HuggingFaceStorage
+  module TransportConfig
+    def init_transport_config!: (HTTPTransport? transport) -> void
+  end
+end

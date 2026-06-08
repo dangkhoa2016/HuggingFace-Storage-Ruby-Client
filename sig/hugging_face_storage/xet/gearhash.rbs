@@ -1,5 +1,19 @@
 module HuggingFaceStorage
   module Gearhash
     def self?.cdc_chunk: (String data, Integer mask, Integer min_chunk, Integer max_chunk, Array[Integer] table) -> Array[[Integer, Integer]]
+    def self?.serialize_xorb_from_ranges: (String data, Array[Array[Integer]] ranges) -> String
+    def self?.xorb_xor: (String a, String b) -> String
+    def self?.build_xorb_info: (String xorb_hash, Array[String] chunk_hashes, Array[Integer] chunk_lengths, Integer xorb_serialized_size) -> String
+    def self?.build_full_shard: (String file_hash, String sha256, Array[String] rep_xorb_hashes, Array[Integer] rep_lengths, Array[Integer] rep_index_starts, Array[Integer] rep_index_ends, Array[String] rep_range_hashes, String xorb_hash, Array[String] chunk_hashes, Array[Integer] chunk_lengths, Integer xorb_serialized_size) -> String
+
+    def self?.cdc_and_hash: (String data, Array[Integer] table, String key, Integer mask, Integer min_chunk, Integer max_chunk) -> [Array[[Integer, Integer]], String]
+
+    def self?.full_pipeline: (String data, Array[Integer] table, String key, Integer mask, Integer min_chunk, Integer max_chunk) -> [String, Array[[Integer, Integer]], String]
+
+    class CdcState
+      def initialize: (Array[Integer] table, Integer mask, Integer min_chunk, Integer max_chunk) -> void
+      def feed: (String data) -> Array[String]
+      def finalize: () -> Array[String]
+    end
   end
 end

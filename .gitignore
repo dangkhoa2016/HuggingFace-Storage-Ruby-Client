@@ -21,6 +21,7 @@ Gemfile.lock
 # Docs
 docs/
 .yardoc/
+doc/
 
 # Editor / OS artifacts
 .DS_Store
@@ -29,3 +30,4 @@ docs/
 .vscode/
 .idea/
 .qoder/
+ext/gearhash/hugging_face_storage/*.so

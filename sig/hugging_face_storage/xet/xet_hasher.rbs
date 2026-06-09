@@ -9,6 +9,7 @@ module HuggingFaceStorage
     CHUNK_HEADER_SIZE: Integer
     IDX_LAST_U64_BYTE: Integer
     BATCH_PARALLEL_THRESHOLD: Integer
+    BATCH_PARALLEL_MIN_SIZE: Integer
 
     THREAD_POOL_KEY: Symbol
 
@@ -19,8 +20,16 @@ module HuggingFaceStorage
 
     def initialize: -> void
 
+    def self.native_available?: -> bool
+
     def cdc_chunk: (String data) -> Array[Array[Integer]]
     def cdc_chunk_ruby: (String data) -> Array[Array[Integer]]
+
+    # Performs CDC chunking and BLAKE3 hashing in a single C call.
+    def cdc_and_hash_native: (String data) -> [Array[Array[Integer]], String]
+
+    # Performs full pipeline: CDC + parallel BLAKE3 + xorb serialization in a single C call.
+    def full_pipeline_native: (String data) -> [String, Array[Array[Integer]], String]
 
     def self.gearhash_step: (Integer state, Integer byte) -> Integer
 
@@ -44,8 +53,9 @@ module HuggingFaceStorage
     # Shuts down all thread-local Blake3 thread pools.
     def shutdown_pool: -> void
 
-    # Computes the xorb hash from a list of chunk hashes and lengths using a Merkle tree.
-    def compute_xorb_hash: (Array[untyped] chunk_hashes_and_lengths) -> String
+    # Computes the xorb hash from chunk hashes using a Merkle tree.
+    # Accepts parallel arrays (preferred) or array of Hash/tuple (legacy).
+    def compute_xorb_hash: (Array[String] chunk_hashes, ?Array[Integer]? chunk_lengths) -> String
 
     # Computes the file-level hash from a xorb hash.
     def compute_file_hash: (String xorb_hash) -> String
@@ -58,5 +68,7 @@ module HuggingFaceStorage
     def cdc_chunker: () -> CdcChunker
     def thread_local_pool: (Integer size) -> Blake3Pool
     def blake3_hash: (String data) -> String
+    def should_use_sequential?: (Array[Array[Integer]] ranges, Integer num_threads) -> bool
+    def sequential_blake3_from_ranges: (String key, String data, Array[Array[Integer]] ranges) -> Array[String]
   end
 end

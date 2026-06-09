@@ -15,7 +15,7 @@ Gemspec/DevelopmentDependencies:
 #   XetShardBuilder is a focused module for binary shard protocol assembly.
 #   Splitting further would harm cohesion — all methods belong together.
 Metrics/ModuleLength:
-  Max: 150
+  Max: 200
 
 # ── Linting ──────────────────────────────────────────────────────────────
 #   Thor DSL requires method stubs with desc/option/long_desc annotations

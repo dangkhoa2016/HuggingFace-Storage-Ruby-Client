@@ -9,6 +9,11 @@ module HuggingFaceStorage
     HASH_LEN: Integer
     MDB_FILE_FLAG_WITH_VERIFICATION: Integer
     MDB_FILE_FLAG_WITH_METADATA_EXT: Integer
+    ZERO_8B: String
+    ZERO_16B: String
+    ZERO_32B: String
+    ZERO_48B: String
+    BOOKEND: String
 
     def build_shard: (file_hash: String, representation: Array[Hash[Symbol, untyped]], chunk_hashes: Array[String], chunk_lengths: Array[Integer], xorb_hash: String, xorb_serialized_size: Integer, sha256: String) -> String
     def build_multi_file_shard: (Array[Hash[Symbol, untyped]] file_metas, Array[Hash[Symbol, untyped]] xorbs) -> String
@@ -20,11 +25,12 @@ module HuggingFaceStorage
     def build_ranges: (Integer chunk_start, Integer chunk_count, Array[Hash[Symbol, untyped]] all_chunks, Array[[Integer, Integer]] chunk_map) -> Array[Array[untyped]]
     def pack_file_header: (String file_hash, Integer representation_size) -> String
     def pack_chunk_entries: (Array[Hash[Symbol, untyped]] representation) -> String
-    def pack_shard_header: (Integer xorb_count, Integer _file_info_size, Integer _shard_size) -> String
-    def pack_shard_xorb_refs: (String xorb_info) -> String
-    def pack_shard_footer: (Integer file_info_offset, Integer xorb_info_offset, Integer xorb_serialized_size, Integer total_raw, Integer footer_offset) -> String
+    def prepack_chunk_entry_data: (Array[Hash[Symbol, untyped]] representation) -> [Array[String], String]
+    def write_chunk_entry: (String buf, Array[String] binary_hashes, String packed_uint32s, Integer idx) -> void
     def build_file_info_section: (String file_hash, Array[Hash[Symbol, untyped]] representation, String sha256) -> String
+    def file_info_capacity: (Array[Hash[Symbol, untyped]] representation) -> Integer
     def build_xorb_info_section_single: (String xorb_hash, Array[String] chunk_hashes, Array[Integer] chunk_lengths, Integer xorb_serialized_size, Integer total_raw) -> String
+    def xorb_info_capacity: (Integer chunk_count, Integer chunk_entry_size) -> Integer
     def build_xorb_info_section_for_xorb: (String buf, Hash[Symbol, untyped] xorb, Integer total_raw, ?Integer serialized_size) -> void
     def assemble_shard: (String file_info, String xorb_info, Integer xorb_serialized_size, Integer total_raw) -> String
 

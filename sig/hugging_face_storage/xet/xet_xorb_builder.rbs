@@ -2,9 +2,21 @@ module HuggingFaceStorage
   module XetXorbBuilder
     SERIALIZE_HEADER_FMT: String
     MAX_24BIT: Integer
+    HEADER_TABLE_SIZE: Integer
+    HEADER_TABLE: Array[String]
 
     def serialize_xorb: (Array[String] chunks_data) -> String
+    def serialize_xorb_from_ranges: (String data, Array[[Integer, Integer]] ranges) -> String
+    def serialize_xorb_from_ranges_concat: (Array[untyped] chunk_infos) -> String
     def pack_xorbs: (Array[Hash[Symbol, untyped]] all_chunks) -> Array[Hash[Symbol, untyped]]
     def finalize_xorb: (Array[Hash[Symbol, untyped]] chunks) -> Hash[Symbol, untyped]
+    def chunk_length: (untyped chunk) -> Integer
+    def chunk_source: (untyped chunk) -> String
+    def chunk_offset: (untyped chunk) -> Integer
+    def build_chunk_header: (Integer size) -> String
+
+    private
+
+    def serialize_xorb_fallback: (String data, Array[[Integer, Integer]] ranges) -> String
   end
 end

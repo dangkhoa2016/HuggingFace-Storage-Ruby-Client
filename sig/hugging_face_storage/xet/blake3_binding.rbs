@@ -16,6 +16,8 @@ module Fiddle
 
   class Pointer
     def self.malloc: (Integer size) -> Pointer
+    def self.[]: (String data) -> Pointer
+    def +: (Integer offset) -> Pointer
     def free: -> void
     def to_str: (?Integer len) -> String
   end
@@ -55,6 +57,7 @@ module HuggingFaceStorage::Blake3Binding
     def find_gem_blake3_so: -> String?
     def native_available?: -> bool
     def _load_native: -> bool
+    def _load_native_from_src: -> bool
   end
 
   extend ClassMethods
@@ -62,7 +65,10 @@ module HuggingFaceStorage::Blake3Binding
   def self.included: (Class base) -> void
 
   def blake3_keyed: (String key, String data) -> String
+  def blake3_keyed_incremental: (String key, Array[String] data_chunks) -> String
   def blake3_keyed_with_buffers: (::HuggingFaceStorage::Blake3Buffers buffers, String key, String data) -> String
+  def blake3_keyed_from_buffer: (::HuggingFaceStorage::Blake3Buffers buffers, String key, String source, Integer offset, Integer length) -> String
+  def blake3_batch_from_buffer: (String key, String source, Array[Array[Integer]] ranges) -> Array[String]
   def thread_local_buffers: -> ::HuggingFaceStorage::Blake3Buffers
   def init_blake3_lib: -> void
 end

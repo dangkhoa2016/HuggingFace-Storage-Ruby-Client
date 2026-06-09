@@ -5,10 +5,9 @@ module HuggingFaceStorage
     private
 
     def start_worker: -> Thread
-    def dequeue_job: -> untyped
-    def record_worker_error: (untyped entry, Exception error) -> void
-    def process_worker_request: ([Integer, Hash[Symbol, untyped]] request, Object buffers) -> void
+    def wait_for_result: (CancelToken? cancel_token) -> Hash[Symbol, untyped]
     def collect_results: (Array[Integer] job_ids, CancelToken? cancel_token) -> Array[String?]
+    def clear_queues!: () -> void
   end
 
   class Blake3Pool
@@ -17,7 +16,9 @@ module HuggingFaceStorage
     attr_reader size: Integer
 
     def initialize: (XetHasher hasher, Integer size) -> void
+    def self.hash: (String data) -> String
     def map: (Array[String] data_array, String key, ?cancel_token: CancelToken?) -> Array[String?]
+    def map_from_buffer: (String key, String source, Array[Array[Integer]] ranges, ?cancel_token: CancelToken?) -> Array[String?]
     def shutdown: -> void
   end
 end

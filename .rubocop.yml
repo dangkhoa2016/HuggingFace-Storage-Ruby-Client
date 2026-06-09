@@ -43,6 +43,8 @@ Style/FormatStringToken:
 
 Style/Alias:
   EnforcedStyle: prefer_alias
+Style/OneClassPerFile:
+  Enabled: false
 
 Style/NumericLiterals:
   MinDigits: 11

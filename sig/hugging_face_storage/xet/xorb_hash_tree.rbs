@@ -2,6 +2,8 @@ module HuggingFaceStorage
   class XorbHashTree
     EMPTY_XORB_HASH: String
 
+    def initialize: () -> void | (Array[String] chunk_hashes) -> void
+    def root_hash: -> String
     def build: (Array[String] chunk_hashes, ?validate: bool) -> String
 
     private

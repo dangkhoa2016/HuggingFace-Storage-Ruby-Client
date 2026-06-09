@@ -15,6 +15,8 @@ module HuggingFaceStorage
 
     private
 
+    def init_cdc_state: () -> void
+    def feed_ruby: (String data) { (String) -> void } -> void
     def chunk_boundary?: (Integer size) -> bool
   end
 end

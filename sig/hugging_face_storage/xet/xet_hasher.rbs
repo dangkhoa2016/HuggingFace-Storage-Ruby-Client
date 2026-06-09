@@ -32,6 +32,15 @@ module HuggingFaceStorage
       ?cancel_token: CancelToken?
     ) -> Array[String?]
 
+    # Computes BLAKE3 keyed hashes directly from source buffer using ranges.
+    def batch_blake3_keyed_from_ranges: (
+      String key,
+      String data,
+      Array[Array[Integer]] ranges,
+      ?num_threads: Integer,
+      ?cancel_token: CancelToken?
+    ) -> Array[String?]
+
     # Shuts down all thread-local Blake3 thread pools.
     def shutdown_pool: -> void
 
@@ -48,5 +57,6 @@ module HuggingFaceStorage
 
     def cdc_chunker: () -> CdcChunker
     def thread_local_pool: (Integer size) -> Blake3Pool
+    def blake3_hash: (String data) -> String
   end
 end

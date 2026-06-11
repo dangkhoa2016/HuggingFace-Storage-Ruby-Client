@@ -4,11 +4,11 @@ module HuggingFaceStorage
     include TokenRetryable
 
     def initialize: (hasher: XetHasher, api_client: ApiClient, token_manager: XetTokenManager, config: Configuration, logger: HFLogger?, http_pool: HttpPool, retryable: Retryable) -> void
-    def stream_and_upload_data: (String bucket_id, String data, String cas_url, String remote_path, untyped on_progress, CancelToken? cancel_token) { (String, ?cancel_token: CancelToken?) -> [Array[String], Array[String], Array[Integer], Array[[String, Integer]], String] } -> Hash[Symbol, (String | Integer)]
+    def stream_and_upload_data: (String bucket_id, String data, String cas_url, String remote_path, untyped on_progress, CancelToken? cancel_token) { (String, ?cancel_token: CancelToken?) -> [Array[[Integer, Integer]], String, Array[String], Array[Integer], String] } -> Hash[Symbol, (String | Integer)]
 
     private
 
-    def compute_single_file_metadata: (String data, CancelToken? cancel_token) { (String, ?cancel_token: CancelToken?) -> [Array[String], Array[String], Array[Integer], Array[[String, Integer]], String] } -> [Array[String], String, String, String, Array[Hash[Symbol, untyped]], Array[String], Array[Integer]]
+    def compute_single_file_metadata: (String data, CancelToken? cancel_token) { (String, ?cancel_token: CancelToken?) -> [Array[[Integer, Integer]], String, Array[String], Array[Integer], String] } -> [Array[[Integer, Integer]], String, String, String, Array[Hash[Symbol, untyped]], Array[String], Array[Integer]]
     def register_single_file: (String bucket_id, String file_hash_hex, String remote_path, String data, untyped on_progress, CancelToken? cancel_token) -> Hash[Symbol, (String | Integer)]
   end
 end

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.shared_context "with directory manager services" do
   let(:auth) { HuggingFaceStorage::Authentication.new(token: "hf_test_token") }
   let(:logger) { null_logger }
@@ -53,4 +52,3 @@ RSpec.shared_context "with directory manager services" do
     )
   end
 end
-# rubocop:enable RSpec/MultipleMemoizedHelpers

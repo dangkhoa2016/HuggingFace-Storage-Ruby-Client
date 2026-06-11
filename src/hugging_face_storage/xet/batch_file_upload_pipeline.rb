@@ -1,0 +1,123 @@
+# frozen_string_literal: true
+
+require "digest/sha2"
+
+module HuggingFaceStorage
+  # @api private
+  # :nodoc:
+  class BatchFileUploadPipeline
+    include CasClient
+    include TokenRetryable
+
+    def initialize(hasher:, api_client:, token_manager:, config:, logger:, http_pool:, retryable:)
+      @hasher = hasher
+      @api = api_client
+      @token_manager = token_manager
+      @config = config
+      @logger = logger
+      @http_pool = http_pool
+      @retryable = retryable
+      @serializer = XetSerializer.new
+    end
+
+    MAX_PARALLEL_CDC = 4
+
+    def process_file_entries(bucket_id, cas_url, state, file_entries, on_progress: nil, cancel_token: nil,
+                             &cdc_and_hash)
+      precomputed = precompute_cdc_results(file_entries, on_progress, cancel_token, &cdc_and_hash)
+
+      file_entries.each_with_index do |entry, file_idx|
+        process_single_file_entry(bucket_id, cas_url, state, entry, file_idx, cancel_token,
+                                  precomputed: precomputed[file_idx])
+      end
+    end
+
+    def precompute_cdc_results(file_entries, on_progress, cancel_token, &cdc_and_hash)
+      results = Array.new(file_entries.size)
+      mutex = Mutex.new
+      threads = []
+
+      file_entries.each_with_index do |entry, file_idx|
+        cancel_token&.raise_if_cancelled!
+
+        threads << Thread.new do
+          cancel_token&.raise_if_cancelled!
+          on_progress&.call(file_idx, entry[:remote_path], entry[:size])
+          result = yield(entry, cancel_token: cancel_token)
+          mutex.synchronize { results[file_idx] = result }
+        end
+
+        if threads.size >= MAX_PARALLEL_CDC
+          threads.each(&:join)
+          threads.clear
+        end
+      end
+
+      threads.each(&:join)
+      results
+    end
+
+    def process_single_file_entry(bucket_id, cas_url, state, entry, _file_idx, cancel_token, precomputed:)
+      cancel_token&.raise_if_cancelled!
+
+      chunk_ranges, source_data, chunk_hashes, chunk_lengths, sha256 = precomputed
+      start_idx = state.global_chunk_idx
+
+      chunk_count = process_file_chunks(bucket_id, cas_url, state, chunk_ranges, source_data, chunk_hashes,
+                                        chunk_lengths, cancel_token)
+
+      xorb_hash = @hasher.compute_xorb_hash(chunk_hashes, chunk_lengths)
+      file_hash = @hasher.compute_file_hash(xorb_hash)
+
+      state.file_metas << {
+        remote_path: entry[:remote_path], file_hash: file_hash, sha256: sha256,
+        chunk_start: start_idx, chunk_count: chunk_count, size: entry[:size]
+      }
+    end
+
+    def process_file_chunks(bucket_id, cas_url, state, chunk_ranges, source_data, chunk_hashes, chunk_lengths,
+                            cancel_token)
+      chunk_count = 0
+      chunk_ranges.each_with_index do |(s, _e), ci|
+        h = chunk_hashes[ci]
+        l = chunk_lengths[ci]
+        chunk_total = XetHasher::CHUNK_HEADER_SIZE + l
+
+        if state.pending_size + chunk_total > XetHasher::XORB_MAX_SIZE ||
+           state.pending_chunks.length >= XetHasher::XORB_MAX_CHUNKS
+          flush_pending_xorb(bucket_id, cas_url, state, cancel_token: cancel_token)
+        end
+
+        # Zero-copy: store reference to source buffer with offset
+        # Use tuples instead of Hashes to eliminate per-chunk Hash allocation
+        state.pending_chunks << [source_data, s, l, h]
+        state.pending_size += chunk_total
+        # all_chunk_metas uses Hash format (consumed by xet_shard_builder which expects :hash/:length keys)
+        state.all_chunk_metas << { hash: h, length: l }
+        state.global_chunk_idx += 1
+        chunk_count += 1
+      end
+      chunk_count
+    end
+
+    def flush_pending_xorb(bucket_id, cas_url, state, cancel_token: nil)
+      return if state.pending_chunks.empty?
+
+      # Zero-copy serialization from multiple source buffers
+      data = @serializer.serialize_xorb_from_ranges_concat(state.pending_chunks)
+      # Pass parallel arrays directly to compute_xorb_hash (avoids Hash allocation)
+      chunk_hashes = state.pending_chunks.map { |c| c[3] }
+      chunk_lengths = state.pending_chunks.map { |c| c[2] }
+      xorb_hash = @hasher.compute_xorb_hash(chunk_hashes, chunk_lengths)
+      # Store as Hashes for downstream consumers (xet_shard_builder expects :hash/:length keys)
+      chunks_info = state.pending_chunks.map { |c| { hash: c[3], length: c[2] } }
+      with_token_retry(bucket_id, label: "write") do |token|
+        upload_xorb(cas_url, token, xorb_hash, data, cancel_token: cancel_token)
+        true
+      end
+      state.uploaded_xorbs << { hash: xorb_hash, chunks: chunks_info, serialized_size: data.bytesize }
+      state.pending_chunks.clear
+      state.pending_size = 0
+    end
+  end
+end

@@ -172,7 +172,6 @@ RSpec.describe "FileManager#edit" do
   end
 end
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe "FileManager#edit integration" do
   let(:auth) { HuggingFaceStorage::Authentication.new(token: "hf_test_token") }
   let(:config) { HuggingFaceStorage::Configuration.new }
@@ -236,4 +235,3 @@ RSpec.describe "FileManager#edit integration" do
     ), hash_including(cancel_token: nil))
   end
 end
-# rubocop:enable RSpec/MultipleMemoizedHelpers

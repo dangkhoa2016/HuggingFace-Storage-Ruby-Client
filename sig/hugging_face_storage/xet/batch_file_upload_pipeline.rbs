@@ -7,7 +7,7 @@ module HuggingFaceStorage
     def process_file_entries: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, Array[Hash[Symbol, untyped]] file_entries, ?on_progress: untyped, ?cancel_token: CancelToken?) { (Hash[Symbol, untyped] entry, ?cancel_token: CancelToken?) -> Array } -> void
     def precompute_cdc_results: (Array[Hash[Symbol, untyped]] file_entries, untyped on_progress, CancelToken? cancel_token) { (Hash[Symbol, untyped] entry, cancel_token: CancelToken?) -> untyped } -> Array[untyped]
     def process_single_file_entry: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, Hash[Symbol, untyped] entry, Integer file_idx, CancelToken? cancel_token, precomputed: untyped) -> void
-    def process_file_chunks: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, Array[String] chunks_data, Array[String] chunk_hashes, Array[Integer] chunk_lengths, CancelToken? cancel_token) -> Integer
+    def process_file_chunks: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, Array[[Integer, Integer]] chunk_ranges, String source_data, Array[String] chunk_hashes, Array[Integer] chunk_lengths, CancelToken? cancel_token) -> Integer
     def flush_pending_xorb: (String bucket_id, String cas_url, XetDataUploader::XorbBatchState state, ?cancel_token: CancelToken?) -> void
   end
 end

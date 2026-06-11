@@ -2,7 +2,6 @@
 
 require "spec_helper"
 
-# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe HuggingFaceStorage::DirectoryCopyService do
   let(:api) do
     instance_double(HuggingFaceStorage::ApiClient).tap do |a|
@@ -270,4 +269,3 @@ RSpec.describe HuggingFaceStorage::DirectoryCopyService do
     end
   end
 end
-# rubocop:enable RSpec/MultipleMemoizedHelpers

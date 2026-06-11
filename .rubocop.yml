@@ -14,6 +14,7 @@ AllCops:
     - "temp/**/*"
     - "examples/**/*"
     - "bench/**/*"
+    - "benchmark/**/*"
 
 Style/Documentation:
   Enabled: false
@@ -70,11 +71,13 @@ Metrics/AbcSize:
   Max: 30
   Exclude:
     - spec/**/*
+    - benchmark/**/*
 
 Metrics/BlockLength:
   Max: 30
   Exclude:
     - "spec/**/*"
+    - "benchmark/**/*"
 
 Metrics/ParameterLists:
   Max: 10
@@ -100,7 +103,7 @@ RSpec/NestedGroups:
 RSpec/MessageChain:
   Enabled: false
 RSpec/MultipleMemoizedHelpers:
-  Max: 12
+  Max: 20
 
 RSpec/IndexedLet:
   Enabled: false
@@ -235,6 +238,7 @@ Lint/UnusedMethodArgument:
     - spec/**/*
     - src/hugging_face_storage/api_client.rb
     - src/hugging_face_storage/cross_repo_copy_service.rb
+    - benchmark/**/*
 Lint/SelfAssignment:
   Exclude:
     - src/hugging_face_storage/ops/bucket_query.rb
@@ -279,6 +283,7 @@ Performance/RedundantBlockCall:
     - src/hugging_face_storage/cancel_token.rb
     - src/hugging_face_storage/logger.rb
     - src/hugging_face_storage/xet_lazy_file.rb
+    - benchmark/**/*
 
 # === Style cops ===
 Style/BitwisePredicate:
@@ -300,6 +305,7 @@ Style/GuardClause:
   Exclude:
     - src/hugging_face_storage/api_client.rb
     - src/hugging_face_storage/bucket_query.rb
+    - benchmark/**/*
 Style/IfUnlessModifier:
   Exclude:
     - src/hugging_face_storage/api_client.rb
@@ -373,6 +379,7 @@ Style/StringLiteralsInInterpolation:
     - src/hugging_face_storage/file_manager.rb
     - src/hugging_face_storage/snapshot.rb
     - src/hugging_face_storage/xet_lazy_file.rb
+    - benchmark/**/*
 Style/FileOpen:
   Exclude:
     - "src/hugging_face_storage/logging/logger.rb"
@@ -380,3 +387,11 @@ Style/FileOpen:
 Style/WordArray:
   Exclude:
     - spec/**/*
+
+Style/MixinUsage:
+  Exclude:
+    - benchmark/**/*
+
+Style/ExplicitBlockArgument:
+  Exclude:
+    - benchmark/**/*

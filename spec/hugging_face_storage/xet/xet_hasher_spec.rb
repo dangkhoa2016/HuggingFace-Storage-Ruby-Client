@@ -367,6 +367,142 @@ RSpec.describe HuggingFaceStorage::XetHasher do
     end
   end
 
+  describe "Gearhash.blake3_batch_keyed_from_ranges (C extension)" do
+    let(:key) { described_class::DATA_KEY }
+
+    it "produces concatenated hashes matching sequential blake3_keyed" do
+      data = ("hello world this is test data for hashing" * 10).b
+      ranges = [[0, 10], [10, 25], [25, 40]]
+
+      expected = ranges.map { |s, e| hasher.blake3_keyed(key, data.byteslice(s, e - s)) }.join
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+
+      expect(actual).to eq(expected)
+      expect(actual.bytesize).to eq(ranges.size * 32)
+    end
+
+    it "handles empty ranges" do
+      data = "some data".b
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, [], key)
+      expect(actual).to eq("")
+    end
+
+    it "handles single range" do
+      data = "single chunk data".b
+      ranges = [[0, data.bytesize]]
+      expected = hasher.blake3_keyed(key, data)
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+      expect(actual).to eq(expected)
+      expect(actual.bytesize).to eq(32)
+    end
+
+    it "handles ranges that don't start at offset 0" do
+      data = ("a" * 100).b
+      ranges = [[10, 30], [50, 80]]
+      expected = ranges.map { |s, e| hasher.blake3_keyed(key, data.byteslice(s, e - s)) }.join
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+
+      expect(actual).to eq(expected)
+    end
+
+    it "produces correct hashes for varying chunk sizes" do
+      data = Random.new(42).bytes(100_000).b
+      ranges = [[0, 8192], [8192, 24576], [24576, 65536], [65536, 100000]]
+
+      expected = ranges.map { |s, e| hasher.blake3_keyed(key, data.byteslice(s, e - s)) }.join
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+
+      expect(actual).to eq(expected)
+      expect(actual.bytesize).to eq(4 * 32)
+    end
+
+    it "preserves order of results" do
+      data = ("abcdefghij" * 100).b
+      ranges = 10.times.map { |i| [i * 10, (i + 1) * 10] }
+
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+
+      ranges.each_with_index do |(s, e), i|
+        expected_hash = hasher.blake3_keyed(key, data.byteslice(s, e - s))
+        expect(actual.byteslice(i * 32, 32)).to eq(expected_hash)
+      end
+    end
+
+    it "handles large number of chunks efficiently" do
+      data = Random.new(99).bytes(200_000).b
+      chunk_size = 1000
+      ranges = 50.times.map { |i| [i * chunk_size, (i + 1) * chunk_size] }
+
+      expected = ranges.map { |s, e| hasher.blake3_keyed(key, data.byteslice(s, e - s)) }.join
+      actual = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+
+      expect(actual).to eq(expected)
+      expect(actual.bytesize).to eq(50 * 32)
+    end
+  end
+
+  describe "Gearhash.cdc_and_hash (C extension)" do
+    let(:key) { described_class::DATA_KEY }
+    let(:table) { HuggingFaceStorage::GEARHASH_TABLE }
+    let(:mask) { HuggingFaceStorage::XetHasher::MASK }
+    let(:min_chunk) { HuggingFaceStorage::XetHasher::MIN_CHUNK }
+    let(:max_chunk) { HuggingFaceStorage::XetHasher::MAX_CHUNK }
+
+    it "returns ranges and concatenated hashes matching separate CDC + Blake3" do
+      data = ("hello world this is test data for hashing" * 100).b
+
+      expected_ranges = hasher.cdc_chunk(data)
+      expected_hashes = expected_ranges.map { |s, e|
+        hasher.blake3_keyed(key, data.byteslice(s, e - s))
+      }.join
+
+      ranges, hashes = HuggingFaceStorage::Gearhash.cdc_and_hash(data, table, key, mask, min_chunk, max_chunk)
+
+      expect(ranges).to eq(expected_ranges)
+      expect(hashes).to eq(expected_hashes)
+      expect(hashes.bytesize).to eq(ranges.size * 32)
+    end
+
+    it "handles small data (single chunk)" do
+      data = "small".b
+
+      ranges, hashes = HuggingFaceStorage::Gearhash.cdc_and_hash(data, table, key, mask, min_chunk, max_chunk)
+
+      expect(ranges.size).to eq(1)
+      expect(ranges[0]).to eq([0, data.bytesize])
+      expect(hashes.bytesize).to eq(32)
+    end
+
+    it "handles 1MB data" do
+      data = Random.new(42).bytes(1_000_000).b
+
+      expected_ranges = hasher.cdc_chunk(data)
+      expected_hashes = expected_ranges.map { |s, e|
+        hasher.blake3_keyed(key, data.byteslice(s, e - s))
+      }.join
+
+      ranges, hashes = HuggingFaceStorage::Gearhash.cdc_and_hash(data, table, key, mask, min_chunk, max_chunk)
+
+      expect(ranges).to eq(expected_ranges)
+      expect(hashes).to eq(expected_hashes)
+    end
+
+    it "handles 10MB data" do
+      data = Random.new(99).bytes(10_000_000).b
+
+      expected_ranges = hasher.cdc_chunk(data)
+      expected_hashes = expected_ranges.map { |s, e|
+        hasher.blake3_keyed(key, data.byteslice(s, e - s))
+      }.join
+
+      ranges, hashes = HuggingFaceStorage::Gearhash.cdc_and_hash(data, table, key, mask, min_chunk, max_chunk)
+
+      expect(ranges).to eq(expected_ranges)
+      expect(hashes).to eq(expected_hashes)
+      expect(hashes.bytesize).to eq(ranges.size * 32)
+    end
+  end
+
   describe "#shutdown_pool" do
     it "shuts down all thread-local pools" do
       key = described_class::DATA_KEY
@@ -415,6 +551,68 @@ RSpec.describe HuggingFaceStorage::XetHasher do
       pool2 = Thread.current[HuggingFaceStorage::XetHasher::THREAD_POOL_KEY]
       expect(pool1).to have_received(:shutdown)
       expect(pool2.size).to eq(4)
+    end
+  end
+
+  describe "Gearhash.full_pipeline (C extension)" do
+    let(:key) { described_class::DATA_KEY }
+    let(:table) { HuggingFaceStorage::GEARHASH_TABLE }
+    let(:mask) { HuggingFaceStorage::XetHasher::MASK }
+    let(:min_chunk) { HuggingFaceStorage::XetHasher::MIN_CHUNK }
+    let(:max_chunk) { HuggingFaceStorage::XetHasher::MAX_CHUNK }
+
+    it "returns xorb_data matching separate serialize_xorb_from_ranges" do
+      data = ("hello world this is test data for pipeline" * 100).b
+
+      ranges = hasher.cdc_chunk(data)
+      hashes = HuggingFaceStorage::Gearhash.blake3_batch_keyed_from_ranges(data, ranges, key)
+      chunk_lengths = ranges.map { |s, e| e - s }
+      expected_xorb = HuggingFaceStorage::Gearhash.serialize_xorb_from_ranges(data, ranges)
+
+      result = HuggingFaceStorage::Gearhash.full_pipeline(data, table, key, mask, min_chunk, max_chunk)
+      hashes_concat, result_ranges, xorb_data = result
+
+      expect(xorb_data).to eq(expected_xorb)
+      expect(result_ranges.size).to eq(ranges.size)
+      expect(hashes_concat.bytesize).to eq(ranges.size * 32)
+    end
+
+    it "handles small data (single chunk)" do
+      data = "small".b
+
+      result = HuggingFaceStorage::Gearhash.full_pipeline(data, table, key, mask, min_chunk, max_chunk)
+      hashes_concat, result_ranges, xorb_data = result
+
+      expect(result_ranges.size).to eq(1)
+      expect(xorb_data).to be_a(String)
+      expect(xorb_data.bytesize).to be > 0
+      expect(hashes_concat.bytesize).to eq(32)
+    end
+
+    it "handles 1MB data" do
+      data = Random.new(42).bytes(1_000_000).b
+
+      ranges = hasher.cdc_chunk(data)
+      expected_xorb = HuggingFaceStorage::Gearhash.serialize_xorb_from_ranges(data, ranges)
+
+      result = HuggingFaceStorage::Gearhash.full_pipeline(data, table, key, mask, min_chunk, max_chunk)
+      hashes_concat, result_ranges, xorb_data = result
+
+      expect(xorb_data).to eq(expected_xorb)
+      expect(result_ranges.size).to eq(ranges.size)
+    end
+
+    it "handles 10MB data" do
+      data = Random.new(99).bytes(10_000_000).b
+
+      ranges = hasher.cdc_chunk(data)
+      expected_xorb = HuggingFaceStorage::Gearhash.serialize_xorb_from_ranges(data, ranges)
+
+      result = HuggingFaceStorage::Gearhash.full_pipeline(data, table, key, mask, min_chunk, max_chunk)
+      hashes_concat, result_ranges, xorb_data = result
+
+      expect(xorb_data).to eq(expected_xorb)
+      expect(result_ranges.size).to eq(ranges.size)
     end
   end
 
@@ -502,6 +700,39 @@ RSpec.describe HuggingFaceStorage::XetHasher do
       expect(chunks1).not_to eq(chunks2)
       expect(chunks1.size).to be > 0
       expect(chunks2.size).to be > 0
+    end
+  end
+
+  describe "#cdc_and_hash_native" do
+    it "produces identical ranges to cdc_chunk" do
+      data = Random.bytes(1024 * 1024)
+      ranges_native, _hashes_native = hasher.cdc_and_hash_native(data)
+      ranges_ruby = hasher.cdc_chunk(data)
+      expect(ranges_native).to eq(ranges_ruby)
+    end
+
+    it "produces identical hashes to sequential blake3_keyed" do
+      data = Random.bytes(1024 * 1024)
+      ranges_native, hashes_native = hasher.cdc_and_hash_native(data)
+
+      key = described_class::DATA_KEY
+      expected_hashes = ranges_native.map { |s, e| hasher.blake3_keyed(key, data.byteslice(s, e - s)) }
+
+      hashes_array = hashes_native.scan(/.{32}/m)
+      expect(hashes_array).to eq(expected_hashes)
+    end
+
+    it "handles small data (single chunk)" do
+      data = ("x" * 100).b
+      ranges, hashes = hasher.cdc_and_hash_native(data)
+      expect(ranges).to eq([[0, 100]])
+      expect(hashes.bytesize).to eq(32)
+    end
+
+    it "returns frozen strings" do
+      data = Random.bytes(1024)
+      _ranges, hashes = hasher.cdc_and_hash_native(data)
+      expect(hashes).to be_frozen
     end
   end
 

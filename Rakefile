@@ -33,6 +33,12 @@ namespace :ext do
   end
 end
 
+BENCH_FILES = {
+  upload: "upload.rb",
+  download: "download.rb",
+  analysis: "pipeline.rb",
+}.freeze
+
 namespace :benchmark do
   desc "Run upload pipeline benchmarks (CDC, batch Blake3, shard building)"
   task upload: "ext:compile" do
@@ -44,8 +50,20 @@ namespace :benchmark do
     ruby "benchmark/download.rb"
   end
 
-  desc "Run all benchmarks"
-  task all: %i[upload download]
+  desc "Run bottleneck analysis (detailed step-by-step breakdown)"
+  task analysis: "ext:compile" do
+    ruby "benchmark/pipeline.rb"
+  end
+
+  desc "Run all benchmarks (upload + download + analysis independently)"
+  task all: "ext:compile" do
+    results = {}
+    BENCH_FILES.each do |task_name, file|
+      results[task_name] = system(RbConfig.ruby, "benchmark/#{file}")
+    end
+    failed = results.reject { |_, v| v }.keys
+    abort "Benchmark errors in: #{failed.join(', ')}" unless failed.empty?
+  end
 end
 
 RuboCop::RakeTask.new(:lint)

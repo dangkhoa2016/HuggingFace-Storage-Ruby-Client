@@ -2,4 +2,4 @@
 --format documentation
 --color
 --tag ~benchmark
---profile 10
+# --profile 10

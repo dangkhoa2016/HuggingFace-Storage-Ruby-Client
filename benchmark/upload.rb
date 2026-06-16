@@ -576,5 +576,52 @@ safe_bench("Batch Upload Pipeline (multiple small files)") do
   print_stats_table(multi_rows)
 end
 
+# ── Full Pipeline: Old vs Native C ──
+
+safe_bench("Full Pipeline: Old (3-step) vs Native C (1-step)") do
+  comp_rows = []
+  SIZES.each do |label, size|
+    data = Random.bytes(size)
+
+    # Old pipeline: cdc_chunk + batch_blake3_keyed_from_ranges + serialize
+    warmup do
+      cr = hasher.cdc_chunk(data)
+      ch = hasher.batch_blake3_keyed_from_ranges(key, data, cr, num_threads: DEFAULT_THREADS)
+      serializer.serialize_xorb_from_ranges(data, cr)
+    end
+    old_stats = statistical_run(data_size: size) do
+      cr = hasher.cdc_chunk(data)
+      ch = hasher.batch_blake3_keyed_from_ranges(key, data, cr, num_threads: DEFAULT_THREADS)
+      serializer.serialize_xorb_from_ranges(data, cr)
+    end
+
+    # New pipeline: cdc_and_hash_native + serialize
+    if hasher.respond_to?(:cdc_and_hash_native)
+      warmup do
+        cr, _h = hasher.cdc_and_hash_native(data)
+        serializer.serialize_xorb_from_ranges(data, cr)
+      end
+      new_stats = statistical_run(data_size: size) do
+        cr, _h = hasher.cdc_and_hash_native(data)
+        serializer.serialize_xorb_from_ranges(data, cr)
+      end
+      speedup = ((new_stats[:throughput_mbps] - old_stats[:throughput_mbps]) / old_stats[:throughput_mbps] * 100).round(1)
+    else
+      new_stats = nil
+      speedup = "N/A"
+    end
+
+    comp_rows << {
+      "Size" => label,
+      "Old Avg(s)" => old_stats[:avg].round(4),
+      "Old MB/s" => old_stats[:throughput_mbps],
+      "New Avg(s)" => new_stats ? new_stats[:avg].round(4) : "N/A",
+      "New MB/s" => new_stats ? new_stats[:throughput_mbps] : "N/A",
+      "Improve" => new_stats ? "#{speedup.positive? ? '+' : ''}#{speedup}%" : "N/A",
+    }
+  end
+  print_stats_table(comp_rows)
+end
+
 puts
 puts "Done."

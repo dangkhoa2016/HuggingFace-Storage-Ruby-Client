@@ -1,0 +1,39 @@
+module HuggingFaceStorage
+  # Copies files/directories within the same bucket.
+  class SameBucketCopyService
+    include Instrumentation
+
+    def initialize: (
+      api_client: ApiClient,
+      bucket_id: String,
+      ?file_manager: FileManager?,
+      ?logger: HFLogger?,
+      ?config: Configuration?,
+      ?copy_pipeline: CopyPipeline?,
+      ?metrics_registry: Object?,
+      ?notifications: Object?
+    ) -> void
+
+    # Copies one or more source paths to a destination within the same bucket.
+    def copy: (
+      String source_path,
+      String destination_path,
+      ?overwrite: bool,
+      ?cancel_token: CancelToken?
+    ) -> (Hash[Symbol, (String | Integer)] | Hash[Symbol, (Array[Hash[Symbol, (String | Integer)]] | Integer)])
+
+    # Copies a single file within the same bucket using server-side Xet copy.
+    def copy_file: (
+      String source_path,
+      String destination_path,
+      ?overwrite: bool,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, String]
+
+    def normalize_paths: (String source_path, String destination_path) -> [String, String]
+    def execute_same_bucket_copy: (String source_path, String destination_path, bool overwrite, CancelToken? cancel_token) -> Hash[Symbol, (Integer | Integer)]
+    def build_copy_operations: (String source_path, String destination_path, bool overwrite) -> [Array[Hash[Symbol, untyped]], Integer, Integer]
+    def build_copy_items: (Array[FileInfo] files, String source_path, String destination_path) -> Array[Hash[Symbol, untyped]]
+    def build_copy_ops_from_items: (Array[Hash[Symbol, untyped]] items) -> Array[Hash[Symbol, untyped]]
+  end
+end

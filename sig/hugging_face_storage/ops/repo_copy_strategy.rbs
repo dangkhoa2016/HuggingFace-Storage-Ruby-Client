@@ -1,0 +1,12 @@
+module HuggingFaceStorage
+  class CrossRepoCopyService
+    class RepoCopyStrategy
+      def initialize: (api_client: ApiClient, source_iterator: SourceIterator, logger: HFLogger | NullLogger) -> void
+      def call: (sources: Array[String], normalized_dst_base: String?, source_type: String, source_repo: String, revision: String, exclude: Array[String]?, cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+      private
+
+      def execute_source_iteration: (Array[String], String?, String, String, String, Array[String]?, CancelToken?) -> [Array[untyped], Array[untyped], Array[untyped]]
+    end
+  end
+end

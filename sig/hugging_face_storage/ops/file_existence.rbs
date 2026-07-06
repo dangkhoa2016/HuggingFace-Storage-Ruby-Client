@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  class FileExistence
+    def initialize: (transport: HTTPTransport, logger: HFLogger) -> void
+
+    def file_exists?: (String bucket_id, String path) -> bool
+
+    def list_files: (String bucket_id, ?prefix: String, ?recursive: bool) -> Array[Hash[String, untyped]]
+  end
+end

@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class FileManager
+    class Lister
+      def initialize: (api_client: ApiClient, bucket_id: String, logger: HFLogger | NullLogger) -> void
+      def list: (?prefix: String?, ?recursive: bool, ?lazy: bool) -> (Array[FileInfo] | Enumerator[FileInfo])
+      def list_all: (prefix: String, ?batch_size: Integer, ?cancel_token: CancelToken?) -> Array[Hash[String, untyped]]
+
+      private
+
+      def list_entries_with_pagination: (String? prefix, bool recursive) -> Array[Hash[String, untyped]]
+      def build_file_info_objects: (Array[Hash[String, untyped]] entries) -> Array[FileInfo]
+    end
+  end
+end

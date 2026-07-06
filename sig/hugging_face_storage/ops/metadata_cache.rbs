@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class MetadataCache
+    @cache: Hash[String, untyped]
+
+    def initialize: -> void
+    def fetch: (String key, ?Object? default) ?{ () -> untyped } -> untyped
+    def store: (String key, untyped value) -> untyped
+    def invalidate: (String key) -> void
+    def clear: -> void
+  end
+end

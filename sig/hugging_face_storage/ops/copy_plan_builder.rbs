@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class CopyPlanBuilder
+    def initialize: (api: ApiClient, bucket_id: String, ?logger: HFLogger?, ?debug_mode: bool) -> void
+    def process_source: (source_type: String, source_repo: String, ?source_path: String?, ?revision: String, destination: String, ?exclude: Array[String]?, ?destination_mapper: untyped, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+    private
+
+    def fetch_and_classify_entries: (String source_type, String source_repo, String? source_path, String revision, untyped destination_mapper, Array[String]? exclude, bool debug_mode) -> Hash[Symbol, untyped]
+    def aggregate_copy_plan: (Hash[Symbol, untyped] result, String source_base) -> Hash[Symbol, untyped]
+    def list_repo_files: (String source_type, String source_repo, String? source_path, String? effective_revision, String source_display) -> Array[Hash[String, untyped]]
+    def apply_exclude: (Array[Hash[String, untyped]] files, Array[String]? exclude) -> void
+    def build_default_mapper: (String destination, String source_base) -> Proc
+  end
+end

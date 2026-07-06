@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  class RepoFileCopier
+    def initialize: (api_client: ApiClient, xet_uploader: XetUploader, bucket_id: String, ?logger: HFLogger?, ?config: Configuration?) -> void
+    def copy: (Array[Hash[Symbol, untyped]] pending_downloads, ?on_progress: Proc?, ?on_large_complete: Proc?, ?cancel_token: CancelToken?) -> Hash[Symbol, Integer]
+
+    private
+
+    def fetch_and_process_batch: (Array[Hash[Symbol, untyped]] batch, cancel_token: CancelToken?, on_progress: Proc?, start_count: Integer) -> Integer
+    def download_single_file: (Hash[Symbol, untyped] item, cancel_token: CancelToken?, on_progress: Proc?, on_large_complete: Proc?, current_count: Integer) -> void
+  end
+end

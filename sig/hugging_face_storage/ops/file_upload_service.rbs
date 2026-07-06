@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class FileUploadService
+    include Instrumentation
+
+    def initialize: (xet_uploader: XetUploader, bucket_id: String, ?logger: HFLogger?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def upload: (String local_path, String remote_path, ?on_progress: Proc?, ?cancel_token: CancelToken?, ?exclude: (String | Array[String])?) -> (Hash[Symbol, String] | Array[Hash[Symbol, String]])
+    def upload_bytes: (String data, String remote_path, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+    private
+
+    def glob?: (String path) -> bool
+    def upload_glob: (String pattern, String remote_base, on_progress: Proc?, cancel_token: CancelToken?, exclude: (String | Array[String])?) -> Array[Hash[Symbol, String]]
+  end
+end

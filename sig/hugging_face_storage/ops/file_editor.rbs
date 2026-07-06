@@ -1,0 +1,15 @@
+module HuggingFaceStorage
+  class FileEditor
+    def initialize: (api_client: ApiClient, xet_uploader: XetUploader, xet_downloader: XetDownloader, bucket_id: String, config: Configuration, logger: HFLogger?) -> void
+    def edit: (String remote_path, edits: Array[Hash[Symbol, untyped]], ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+
+    private
+
+    def parse_and_validate_edits: (Array[Hash[Symbol, untyped]] edits) -> void
+    def fetch_backup_and_apply: (String remote_path, Array[Hash[Symbol, untyped]] edits, CancelToken? cancel_token) -> Hash[Symbol, untyped]
+    def guard_edit_size!: (String remote_path) -> void
+    def expand_replace_edits: (Array[Hash[Symbol, untyped]] edits, String original) -> Array[Hash[Symbol, untyped]]
+    def fetch_info: (String path) -> Hash[Symbol, untyped]
+    def apply_edits_to_content: (String original, Array[Hash[Symbol, untyped]] expanded) -> String
+  end
+end

@@ -1,0 +1,8 @@
+module HuggingFaceStorage
+  class LfsGuard
+    MAX_REPORTED: Integer
+
+    def initialize: (String source_label) -> void
+    def check: (Array[Hash[Symbol, untyped]] offenders) -> void
+  end
+end

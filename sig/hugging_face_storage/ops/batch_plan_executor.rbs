@@ -1,0 +1,8 @@
+module HuggingFaceStorage
+  class CrossRepoCopyService
+    class BatchPlanExecutor
+      def initialize: (api_client: ApiClient, source_iterator: SourceIterator, copy_pipeline: CopyPipeline, bucket_id: String, logger: HFLogger | NullLogger) -> void
+      def call: (copy_ops: Array[Hash[Symbol, untyped]], pending_downloads: Array[Hash[Symbol, untyped]], source_results: Array[Hash[Symbol, untyped]], overwrite: bool, cancel_token: CancelToken?, label: String, ?raise_on_partial_failure: bool) -> Hash[Symbol, (Integer | String)]
+    end
+  end
+end

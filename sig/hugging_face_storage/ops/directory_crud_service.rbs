@@ -1,0 +1,29 @@
+module HuggingFaceStorage
+  interface _DirectoryCrudServiceAPI
+    def list_files: (String path, ?recursive: bool) -> Array[FileInfo]
+  end
+
+  class DirectoryCrudService
+    include Instrumentation
+    include CrudHelpers
+
+    def initialize: (api_client: ApiClient, xet_uploader: XetUploader, file_manager: FileManager, bucket_id: String, ?config: Configuration?, ?logger: HFLogger?, ?metrics_registry: Object?, ?notifications: Object?) -> void
+    def create_directory: (String path, ?cancel_token: CancelToken?) -> bool
+    def delete: (String path, ?recursive: bool, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> (bool | BatchResult)
+    def exists?: (String path) -> bool
+    def list: (?prefix: String?) -> Array[DirInfo]
+    def list_files: (String path, ?recursive: bool) -> Array[FileInfo]
+    def metadata: (String path) -> DirInfo
+    def move: (String source_path, String destination_path) -> Hash[Symbol, untyped]
+    def rename: (String old_path, String new_path) -> Hash[Symbol, untyped]
+
+    module CrudHelpers : _DirectoryCrudServiceAPI
+      private
+
+      def collect_delete_operations: (Array[String] paths, bool recursive, CancelToken? cancel_token) -> Array[Hash[Symbol, untyped]]
+      def execute_batch_operations: (Array[Hash[Symbol, untyped]] all_ops, CancelToken? cancel_token, bool raise_on_partial_failure) -> BatchResult
+      def build_move_operations: (Array[FileInfo] files, String normalized_src, String normalized_dst) -> [Array[Hash[Symbol, untyped]], Array[Hash[Symbol, untyped]]]
+      def placeholder_exists?: (String normalized) -> bool
+    end
+  end
+end

@@ -29,3 +29,4 @@ docs/
 .vscode/
 .idea/
 .qoder/
+ext/gearhash/hugging_face_storage/*.so

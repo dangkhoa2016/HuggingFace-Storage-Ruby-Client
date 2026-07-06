@@ -3,6 +3,7 @@
 require "securerandom"
 require_relative "hugging_face_storage/core/version"
 require_relative "hugging_face_storage/config/configuration"
+require_relative "hugging_face_storage/core/errors"
 
 module HuggingFaceStorage
   autoload :BatchResult, File.expand_path("hugging_face_storage/api/batch_result", __dir__)

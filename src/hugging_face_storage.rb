@@ -5,8 +5,18 @@ require_relative "hugging_face_storage/core/version"
 require_relative "hugging_face_storage/config/configuration"
 require_relative "hugging_face_storage/core/errors"
 require_relative "hugging_face_storage/core/cancel_token"
-require_relative "hugging_face_storage/core/token_retryable"
 
+# Ruby client for HuggingFace Storage Buckets — file & directory management
+# with Xet CAS protocol support (CDC chunking, Blake3 hashing, Xorb/Shard).
+#
+# @example
+#   client = HuggingFaceStorage.new(
+#     token: ENV["HF_TOKEN"],
+#     namespace: "user",
+#     bucket: "my-bucket"
+#   )
+#   client.files.upload("./model.bin", "models/model.bin")
+#   client.directories.download("models/qwen", "/tmp/qwen")
 module HuggingFaceStorage
   autoload :BatchResult, File.expand_path("hugging_face_storage/api/batch_result", __dir__)
   autoload :HttpPool, File.expand_path("hugging_face_storage/http/http_pool", __dir__)
@@ -37,7 +47,8 @@ module HuggingFaceStorage
   autoload :XetXorbBuilder, File.expand_path("hugging_face_storage/xet/xet_xorb_builder", __dir__)
   autoload :XetShardBuilder, File.expand_path("hugging_face_storage/xet/xet_shard_builder", __dir__)
   autoload :XetSerializer, File.expand_path("hugging_face_storage/xet/xet_serializer", __dir__)
-  autoload :XetStreamRepresentationBuilder, File.expand_path("hugging_face_storage/xet/xet_stream_representation_builder", __dir__)
+  autoload :XetStreamRepresentationBuilder,
+           File.expand_path("hugging_face_storage/xet/xet_stream_representation_builder", __dir__)
   autoload :XetStreamProcessor, File.expand_path("hugging_face_storage/xet/xet_stream_processor", __dir__)
   autoload :XetTokenManager, File.expand_path("hugging_face_storage/xet/xet_token_manager", __dir__)
   autoload :XetUploader, File.expand_path("hugging_face_storage/xet/xet_uploader", __dir__)
@@ -102,8 +113,13 @@ module HuggingFaceStorage
   autoload :HttpErrorHandler, File.expand_path("hugging_face_storage/core/http_error_handler", __dir__)
   autoload :FileExistence, File.expand_path("hugging_face_storage/ops/file_existence", __dir__)
 
-  def self.new(...) = Client::Builder.new(...).build
-
+  def self.new(...)
+    Client::Builder.new(...).build
+  end
+  # Create a storage client using a block-style builder.
+  #
+  # @yield [Builder] a Builder instance for configuration
+  # @return [Client]
   def self.build
     builder = Client::Builder.new
     yield(builder)

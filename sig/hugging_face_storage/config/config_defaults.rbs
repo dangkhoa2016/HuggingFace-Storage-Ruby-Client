@@ -1,0 +1,5 @@
+module HuggingFaceStorage
+  module ConfigDefaults
+    def to_h: -> Hash[Symbol, untyped]
+  end
+end

@@ -1,0 +1,25 @@
+module HuggingFaceStorage
+  def self.new: (
+    ?token: String?,
+    namespace: String,
+    bucket: String,
+    ?log_level: Symbol,
+    ?log_output: (IO | String),
+    ?log_format: (Symbol | Proc),
+    ?log_color: (Symbol | bool),
+    ?debug_mode: bool,
+    ?config: Configuration?,
+    ?metrics_registry: Object?,
+    ?notifications: Object?
+  ) -> Client
+
+  # autoload :XetUploader, "hugging_face_storage/xet/xet_uploader"
+  # autoload :XetDownloader, "hugging_face_storage/xet/xet_downloader"
+  # autoload :XetHasher, "hugging_face_storage/xet/xet_hasher"
+  # autoload :CopyPipeline, "hugging_face_storage/ops/copy_pipeline"
+  # autoload :SameBucketCopyService, "hugging_face_storage/ops/same_bucket_copy_service"
+  # autoload :CrossRepoCopyService, "hugging_face_storage/ops/cross_repo_copy_service"
+  # autoload :HttpErrorHandler, "hugging_face_storage/core/http_error_handler"
+  # autoload :CLI, "hugging_face_storage/cli/cli"
+  # autoload :BucketsCLI, "hugging_face_storage/cli/cli"
+end

@@ -1,0 +1,25 @@
+class Time
+  def self.httpdate: (String date) -> Time
+end
+
+module HuggingFaceStorage
+  class Retryable
+    RETRYABLE_EXCEPTIONS: Array[singleton(StandardError)]
+    RETRY_AFTER_MAX: Integer
+
+    def initialize: (?logger: HFLogger?) -> void
+    def sleep: (Numeric seconds) -> Integer
+    def interruptible_sleep: (Numeric seconds, CancelToken? cancel_token) -> void
+    def retry_with_backoff: (Configuration config, ?cancel_token: CancelToken?, ?logger: HFLogger?) { (Integer) -> (Net::HTTPResponse | nil) } -> (Net::HTTPResponse | nil)
+
+    private
+
+    def compute_sleep_delay: (Integer retry_count, Configuration config) -> Float
+    def execute_with_retry_loop: (Configuration config, CancelToken? cancel_token, HFLogger? logger) { (Integer) -> (Net::HTTPResponse | nil) } -> (Net::HTTPResponse | nil)
+    def handle_retry_error: (StandardError error, Integer retries, Configuration config, CancelToken? cancel_token, HFLogger? logger) -> Integer
+    def retryable_http_status?: (Integer code) -> bool
+    def retryable_api_error?: (StandardError error) -> bool
+    def compute_retry_delay: (Net::HTTPResponse response, Configuration config, Integer retries) -> (Float | Integer)
+    def parse_retry_after: (String? value) -> (Float | Integer | nil)
+  end
+end

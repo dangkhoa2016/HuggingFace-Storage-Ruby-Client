@@ -1,0 +1,18 @@
+module HuggingFaceStorage
+  class Authentication
+    class TokenProvider
+      def token: -> String
+      def auth_header: -> Hash[String, String]
+    end
+
+    class StaticTokenProvider < TokenProvider
+      def initialize: (?token: String?) -> void
+      attr_reader token: String
+    end
+
+    attr_reader token: String
+
+    def initialize: (?token: String?, ?token_provider: TokenProvider?) -> void
+    def auth_header: -> Hash[String, String]
+  end
+end

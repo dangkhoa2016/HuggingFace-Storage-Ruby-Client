@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop --parallel
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Bundle Audit
+        run: bundle exec bundle-audit check --update
+
+  test:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.allow_failure || false }}
+    strategy:
+      matrix:
+        include:
+          - ruby-version: "2.7"
+          - ruby-version: "3.0"
+          - ruby-version: "3.1"
+          - ruby-version: "3.2"
+          - ruby-version: "3.3"
+          - ruby-version: "3.4"
+          - ruby-version: "4.0"
+            allow_failure: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Run tests
+        run: bin/rspec
+
+      - name: Check coverage
+        run: bin/check_coverage
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Run integration and slow tests
+        run: bundle exec rspec --tag integration --tag slow --format progress
+        env:
+          COVERAGE: true
+
+  type_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Validate RBS signatures
+        run: bundle exec rbs validate
+      - name: Static type check with Steep
+        env:
+          STEEP_LOG_LEVEL: fatal
+        run: bundle exec steep check --severity-level=error
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Generate YARD documentation
+        run: bundle exec yard doc --no-cache 2>&1 | tail -5
+        continue-on-error: true
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Check examples syntax
+        run: |
+          ruby -c examples/usage.rb
+          ruby -c examples/usage.vi.rb
+      - name: Run examples spec
+        run: bin/rspec spec/examples_spec.rb

@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+APP_ROOT = File.expand_path("..", __dir__)
+Dir.chdir(APP_ROOT) unless Dir.pwd == APP_ROOT
+
+puts "== Installing dependencies =="
+system("bundle install") || exit(1)
+
+puts "\n== Configuring git hooks =="
+system("git config core.hooksPath .githooks")
+
+puts "\n== Generating YARD docs =="
+system("bundle exec yard doc --no-cache")
+
+puts "\n== Setup complete! =="
+puts "Run `bin/rspec` to run the test suite."
+puts "Run `bin/console` to start an interactive console."
+puts "Git hooks installed at .githooks/ (run automatically on commit)."

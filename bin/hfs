@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../src/hugging_face_storage"
+require_relative "../src/hugging_face_storage/cli"
+
+HuggingFaceStorage::CLI.start(ARGV)

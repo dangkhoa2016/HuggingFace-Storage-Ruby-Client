@@ -1,0 +1,19 @@
+module HuggingFaceStorage
+  class XetStreamProcessor
+    include CasClient
+    include TransportConfig
+
+    @all_chunk_pairs: Array[[String, String]]
+    @uploaded_xorbs: Array[Hash[Symbol, untyped]]
+    @pending_xorb_chunks: Array[Hash[Symbol, untyped]]
+
+    def initialize: (hasher: XetHasher, serializer: XetSerializer, ?logger: HFLogger?, ?config: Configuration?, ?transport: HTTPTransport?) -> void
+    def stream_upload: (String remote_path, cas_url: String, token: String, ?cancel_token: CancelToken?) { (Proc) -> void } -> Hash[Symbol, untyped]
+
+    private
+
+    def flush_current_xorb: (String cas_url, String token, XetStreamRepresentationBuilder rep_builder, ?cancel_token: CancelToken?) -> void
+    def commit_chunk_to_xorb: (String chunk_bytes, XetStreamRepresentationBuilder rep_builder, String cas_url, String token, ?cancel_token: CancelToken?) -> void
+    def finalize_and_upload: (String remote_path, Digest::SHA256 sha256_ctx, Integer total_bytes, String cas_url, String token, XetStreamRepresentationBuilder rep_builder, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+  end
+end

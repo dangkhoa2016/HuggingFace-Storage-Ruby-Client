@@ -1,0 +1,73 @@
+module HuggingFaceStorage
+  # Uploads files and data to Xet storage, coordinating hashing, serialization, and CAS upload.
+  class XetUploader
+    include CasClient
+    include Instrumentation
+    include TokenRetryable
+    include TransportConfig
+
+    def initialize: (
+      hasher: XetHasher,
+      serializer: XetSerializer,
+      token_manager: XetTokenManager,
+      api_client: ApiClient,
+      endpoint: String,
+      ?logger: HFLogger?,
+      ?config: Configuration?,
+      ?metrics_registry: Object?,
+      ?notifications: Object?,
+      ?transport: HTTPTransport?
+    ) -> void
+
+    # Uploads a local file to Xet storage, using streaming for large files.
+    def upload_file_to_path: (
+      String bucket_id,
+      String local_path,
+      String remote_path,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, (String | Integer)]
+
+    # Uploads raw binary data to Xet storage.
+    def upload_bytes_to_path: (
+      String bucket_id,
+      String data,
+      String remote_path,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, (String | Integer)]
+
+    # Uploads a batch of files, splitting into memory-limited groups as needed.
+    def upload_batch: (
+      String bucket_id,
+      Array[Hash[Symbol, untyped]] file_entries,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Array[Hash[Symbol, (String | Integer)]]
+
+    # Uploads binary data to Xet storage via the data uploader.
+    def upload_data: (
+      String bucket_id,
+      String data,
+      String remote_path,
+      ?on_progress: Proc?,
+      ?cancel_token: CancelToken?
+    ) -> Hash[Symbol, (String | Integer)]
+
+    # Streams data from a download block and uploads it to Xet storage.
+    def stream_download_and_upload: (
+      String bucket_id,
+      String remote_path,
+      ?cancel_token: CancelToken?
+    ) { () -> void } -> untyped
+
+    private
+
+    def prepare_batch_payload: (Array[Hash[Symbol, untyped]] file_entries) -> Array[Array[Hash[Symbol, untyped]]]
+    def report_batch_progress: (Hash[Symbol, untyped] entry, Proc? on_progress, Integer index, Integer _total) -> void
+    def perform_upload_batch: (String bucket_id, Array[Hash[Symbol, untyped]] file_entries, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Array[Hash[Symbol, untyped]]
+    def perform_stream_download_and_upload: (String bucket_id, String remote_path, ?cancel_token: CancelToken?) { () -> void } -> untyped
+    def stream_upload_file: (String bucket_id, String local_path, String remote_path, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+    def stream_upload_core: (String bucket_id, String remote_path, ?cancel_token: CancelToken?) { (untyped) -> void } -> Hash[Symbol, untyped]
+  end
+end

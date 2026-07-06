@@ -1,0 +1,27 @@
+module HuggingFaceStorage
+  class XetDataUploader
+    include CasClient
+    include TokenRetryable
+    include TransportConfig
+
+    class XorbBatchState
+      attr_accessor all_chunk_metas: Array[Hash[Symbol, untyped]]
+      attr_accessor uploaded_xorbs: Array[Hash[Symbol, untyped]]
+      attr_accessor file_metas: Array[Hash[Symbol, untyped]]
+      attr_accessor pending_chunks: Array[Hash[Symbol, untyped]]
+      attr_accessor pending_size: Integer
+      attr_accessor global_chunk_idx: Integer
+
+      def initialize: (?all_chunk_metas: Array[Hash[Symbol, untyped]], ?uploaded_xorbs: Array[Hash[Symbol, untyped]], ?file_metas: Array[Hash[Symbol, untyped]], ?pending_chunks: Array[Hash[Symbol, untyped]], ?pending_size: Integer, ?global_chunk_idx: Integer) -> void
+    end
+
+    def initialize: (hasher: XetHasher, token_manager: XetTokenManager, api_client: ApiClient, endpoint: String, config: Configuration, logger: HFLogger?, ?transport: HTTPTransport?) -> void
+    def upload: (String bucket_id, String data, String remote_path, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Hash[Symbol, untyped]
+    def upload_batch_group: (String bucket_id, Array[Hash[Symbol, untyped]] file_entries, ?on_progress: Proc?, ?cancel_token: CancelToken?) -> Array[Hash[Symbol, untyped]]
+
+    private
+
+    def cdc_and_hash: (Hash[Symbol, untyped] | String source, ?cancel_token: CancelToken?) -> [Array[String], Array[String], Array[Integer], Array[[String, Integer]]]
+    def read_entry_data: (Hash[Symbol, untyped] entry) -> String
+  end
+end

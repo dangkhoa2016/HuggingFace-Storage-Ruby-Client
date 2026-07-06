@@ -1,0 +1,73 @@
+module HuggingFaceStorage
+  module CasDownloadHelpers
+    private
+
+    def stream_cas_data: (
+      String bucket_id,
+      Hash[Symbol, (String | Integer | nil)] metadata,
+      ?cancel_token: CancelToken?
+    ) { (String) -> void } -> void
+
+    def stream_download_via_cas: (String bucket_id, Hash[Symbol, untyped] metadata, String local_path, ?cancel_token: CancelToken?) -> void
+
+    def cas_stream_to_file: (URI uri, String token, ?max_redirects: Integer, ?cancel_token: CancelToken?) { (String) -> void } -> void
+
+    def download_via_cas: (String bucket_id, Hash[Symbol, untyped] metadata, ?cancel_token: CancelToken?) -> String
+
+    def cas_http_get: (URI uri, String bucket_id, ?cancel_token: CancelToken?) -> String
+
+    def with_token_retry: (String bucket_id, label: String) { (String) -> String } -> String
+  end
+
+  # Downloads files and data from Xet storage via CAS or direct resolution.
+  class XetDownloader
+    include Instrumentation
+    include TokenRetryable
+    include TransportConfig
+    include CasDownloadHelpers
+
+    def initialize: (
+      api_client: ApiClient,
+      token_manager: XetTokenManager,
+      endpoint: String,
+      ?logger: HFLogger?,
+      ?config: Configuration?,
+      ?metrics_registry: Object?,
+      ?notifications: Object?,
+      ?transport: HTTPTransport?
+    ) -> void
+
+    # Downloads a file from Xet storage to a local path.
+    def download_file: (
+      String bucket_id,
+      String remote_path,
+      String local_path,
+      ?cancel_token: CancelToken?
+    ) -> void
+
+    # Downloads file data as a binary string, falling back to CAS on server error.
+    def download_data: (
+      String bucket_id,
+      String remote_path,
+      ?cancel_token: CancelToken?
+    ) -> String
+
+    # Downloads file data by streaming chunks, falling back to CAS on server error.
+    def download_data_streaming: (
+      String bucket_id,
+      String remote_path,
+      ?cancel_token: CancelToken?
+    ) { (String) -> void } -> void
+
+    # Fetches metadata for a remote file including size, hash, and mtime.
+    def fetch_file_metadata: (
+      String bucket_id,
+      String path
+    ) -> Hash[Symbol, (String | Integer)?]
+
+    private
+
+    def cas_eligible_error?: (ApiError error) -> (bool | nil)
+    def stream_download_to_file: (String bucket_id, String remote_path, String local_path, ?cancel_token: CancelToken?) -> void
+  end
+end

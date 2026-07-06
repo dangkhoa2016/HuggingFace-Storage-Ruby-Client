@@ -1,0 +1,68 @@
+# Gem::Specification.find_by_name is not declared in built-in RBS.
+module Gem
+  class Specification
+    def self.find_by_name: (String name) -> Gem::Specification
+    def gem_dir: -> String
+  end
+end
+
+# Stub for Fiddle — no official RBS for fiddle/stdlib.
+module Fiddle
+  TYPE_VOIDP: Integer
+  TYPE_SIZE_T: Integer
+  TYPE_VOID: Integer
+
+  def self.dlopen: (String path) -> Handle
+
+  class Pointer
+    def self.malloc: (Integer size) -> Pointer
+    def free: -> void
+    def to_str: (?Integer len) -> String
+  end
+
+  class Function
+    def initialize: (Integer | Pointer addr, Array[Integer] args, Integer ret_type) -> void
+  end
+
+  class Handle
+    def []: (String name) -> Integer
+  end
+end
+
+# ObjectSpace finalizer expects ^(Integer) -> void.
+# FFI memory buffers for BLAKE3 hashing operations.
+class HuggingFaceStorage::Blake3Buffers
+  attr_reader hasher_buf: Fiddle::Pointer
+  attr_reader out_buf: Fiddle::Pointer
+
+  def initialize: -> void
+  def free: -> void
+  def self.finalize_proc: (Fiddle::Pointer hasher_ptr, Fiddle::Pointer out_ptr) -> ^(Integer) -> void
+end
+
+# BLAKE3 hashing binding with keyed hash support for Xet storage.
+module HuggingFaceStorage::Blake3Binding
+  HASHER_SIZE: Integer
+  OUT_LEN: Integer
+  DATA_KEY: String
+  NODE_KEY: String
+  VERIFICATION_KEY: String
+  ZERO_KEY: String
+  THREAD_STORAGE_KEY: Symbol
+
+  module ClassMethods
+    def find_blake3_so: -> String
+    def find_gem_blake3_so: -> String?
+    def native_available?: -> bool
+    def _load_native: -> bool
+  end
+
+  extend ClassMethods
+
+  def self.included: (Class base) -> void
+
+  def blake3_keyed: (String key, String data) -> String
+  def blake3_keyed_with_buffers: (::HuggingFaceStorage::Blake3Buffers buffers, String key, String data) -> String
+  def thread_local_buffers: -> ::HuggingFaceStorage::Blake3Buffers
+  def init_blake3_lib: -> void
+end

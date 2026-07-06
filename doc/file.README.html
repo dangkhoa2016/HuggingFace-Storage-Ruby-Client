@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.9.44
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css">
+
+  <link rel="stylesheet" href="css/common.css" type="text/css">
+
+<script type="text/javascript">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="HuggingFace_Storage___Ruby_Client">HuggingFace Storage — Ruby Client</h1>
+<p>A pure Ruby library for managing files in <a href="https://huggingface.co/docs/hub/storage-buckets">HuggingFace Storage Buckets</a> — like AWS S3 for the HuggingFace ecosystem.</p>
+<p>Includes a CLI tool (<code>hfs</code>) and a programmatic Ruby API.</p>
+<p><strong>No Python dependency. No external CLI calls. 100% Ruby.</strong></p>
+<hr />
+<h2 id="Features">Features</h2>
+<ul>
+<li><strong>Xet CAS Protocol</strong> — Full implementation of the Xet Content-Addressable Storage protocol in pure Ruby: CDC Gearhash chunking, Blake3 keyed hashing (via Fiddle FFI), Xorb and Shard binary formats, iterative Xorb Hash Tree</li>
+<li><strong>Smart Batching</strong> — Directory uploads batch small files (≤100 MB) into shared xorb + shard + single batch call; large files upload individually. 20 small files need ~4 API calls instead of 60+</li>
+<li><strong>Cross-Repo Copy</strong> — Server-side copy from models, datasets, spaces, or other buckets using <code>xetHash</code>. A 3 GB file takes 1 API call — data never passes through the local machine</li>
+<li><strong>CLI Tool</strong> — <code>hfs</code> command with upload, download, copy, delete, move, list, info, snapshot, and bucket management</li>
+<li><strong>Cancel Tokens</strong> — Cooperative cancellation for long-running operations (upload, download, batch, copy)</li>
+<li><strong>Lazy File Handles</strong> — <code>XetLazyFile</code> for deferred downloads with metadata-first access pattern</li>
+<li><strong>Snapshot Downloads</strong> — Directory downloads with JSON manifest for integrity verification</li>
+<li><strong>File Editing</strong> — In-place remote file edits without download/upload cycle</li>
+<li><strong>Exclude Patterns</strong> — Glob-based file exclusion for uploads and copies (<code>*.log</code>, <code>*.tmp</code>, etc.)</li>
+<li><strong>Glob Upload</strong> — Upload files matching a pattern (<code>./data/*.csv</code>)</li>
+<li><strong>Retry Logic</strong> — Automatic retries for transient HTTP errors (429, 500, 502, 503, 504) and network exceptions with exponential backoff</li>
+<li><strong>HTTP Debug Logging</strong> — Configurable request/response logging with automatic masking of sensitive headers (Authorization, Cookie, x-xet-access-token)</li>
+</ul>
+<hr />
+<h2 id="Installation">Installation</h2>
+<p>Add to your Gemfile:</p>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>digest-blake3</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 1.5</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>thor</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 1.3</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+<p>Set your HuggingFace token:</p>
+<pre class="code bash"><code class="bash">export HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxx
+</code></pre>
+<hr />
+<h2 id="CLI_Usage">CLI Usage</h2>
+<p>The CLI binary is <code>bin/hfs</code>:</p>
+<pre class="code bash"><code class="bash"># Upload a directory
+bin/hfs upload user/my-bucket ./models/qwen models/qwen
+
+# Download a file
+bin/hfs download user/my-bucket models/config.json ./config.json
+
+# Copy from a HuggingFace model (server-side, no data transfer)
+bin/hfs copy user/my-bucket tokenizer models/qwen/tokenizer \
+  --from_repo &quot;model:Qwen/Qwen2.5-0.5B-Instruct&quot;
+
+# List files
+bin/hfs list user/my-bucket models/ -r --format json
+
+# Snapshot with verification
+bin/hfs snapshot user/my-bucket models/qwen ./qwen-snapshot --verify
+
+# Bucket management
+bin/hfs buckets list my-org
+bin/hfs buckets info user/my-bucket
+</code></pre>
+<p>Full CLI reference: <a href="docs/CLI.md">docs/CLI.md</a></p>
+<hr />
+<h2 id="Ruby_API___Quick_Start">Ruby API — Quick Start</h2>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hugging_face_storage</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='label'>token:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HF_TOKEN</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='label'>namespace:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>your-username</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>bucket:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>your-bucket</span><span class='tstring_end'>&quot;</span></span>
+<span class='rparen'>)</span>
+</code></pre>
+<h3 id="Files">Files</h3>
+<pre class="code ruby"><code class="ruby"><span class='comment'># Upload a file
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./model.bin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/model.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Upload bytes directly
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_upload_bytes'>upload_bytes</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello world</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>greetings.txt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Upload with glob pattern
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./data/*.csv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Upload with exclude patterns
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./project</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>project</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>exclude:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.tmp</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+<span class='comment'># Download to local path
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/config.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Get a lazy file handle (metadata-first, download on demand)
+</span><span class='id identifier rubyid_lazy'>lazy</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/large.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># no local_path → XetLazyFile
+</span><span class='id identifier rubyid_lazy'>lazy</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>          <span class='comment'># fetches metadata only
+</span><span class='id identifier rubyid_lazy'>lazy</span><span class='period'>.</span><span class='id identifier rubyid_content'>content</span>       <span class='comment'># downloads content on first call, caches
+</span><span class='id identifier rubyid_lazy'>lazy</span><span class='period'>.</span><span class='id identifier rubyid_save_to'>save_to</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/large.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Or explicitly
+</span><span class='id identifier rubyid_lazy'>lazy</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/large.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># List files
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='lparen'>(</span><span class='label'>recursive:</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_xet_hash'>xet_hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+
+<span class='comment'># List with prefix filter
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='lparen'>(</span><span class='label'>prefix:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>recursive:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+<span class='comment'># Check existence
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/config.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='comment'># =&gt; true/false
+</span>
+<span class='comment'># Get metadata
+</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/config.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span>       <span class='comment'># =&gt; &quot;models/config.json&quot;
+</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>       <span class='comment'># =&gt; 660
+</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_xet_hash'>xet_hash</span>   <span class='comment'># =&gt; &quot;abc123...&quot;
+</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span>      <span class='comment'># =&gt; &quot;2026-01-15T10:30:00Z&quot;
+</span>
+<span class='comment'># Delete (single or batch)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>old-model.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a.txt</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b.txt</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>c.txt</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+<span class='comment'># Move / rename
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_move'>move</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>old-name.bin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>new-name.bin</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_rename'>rename</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/v1/config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/v2/config.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Copy within bucket
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_copy'>copy</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/v1/config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/v2/config.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Edit remote file in-place
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>edits:</span> <span class='lbracket'>[</span>
+  <span class='lbrace'>{</span> <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>replace</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>old:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\&quot;version\&quot;: 1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>new:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\&quot;version\&quot;: 2</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='rbracket'>]</span><span class='rparen'>)</span>
+</code></pre>
+<h3 id="Directories">Directories</h3>
+<pre class="code ruby"><code class="ruby"><span class='comment'># Create directory
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Upload directory (smart batching)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./my_model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/my_model</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./my_model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/my_model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>exclude:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.log</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Download directory (parallel)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/qwen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>parallel:</span> <span class='int'>8</span><span class='rparen'>)</span>
+
+<span class='comment'># List directories
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='lparen'>(</span><span class='label'>prefix:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Check existence
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Get directory metadata
+</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span>        <span class='comment'># =&gt; &quot;models/qwen&quot;
+</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_file_count'>file_count</span>  <span class='comment'># =&gt; 12
+</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_total_size'>total_size</span>  <span class='comment'># =&gt; 3_500_000
+</span>
+<span class='comment'># Delete directory (recursive by default)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>old-model</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Move / rename directory
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_move'>move</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>staging/model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>production/model</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_rename'>rename</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>v1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>v2</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Copy within bucket
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy'>copy</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/v1</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>backup/v1</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy'>copy</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/b</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>backup</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'># Copy from external repo (server-side)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy'>copy</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tokenizer</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen/tokenizer</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Qwen/Qwen2.5-0.5B-Instruct</span><span class='tstring_end'>&quot;</span></span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Copy from tree file
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy_from_tree'>copy_from_tree</span><span class='lparen'>(</span>
+  <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Qwen/Qwen2.5-0.5B-Instruct</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>tree:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tree.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>destination_prefix:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Copy entire repo (auto-list + classify + copy/download)
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy_from_repo'>copy_from_repo</span><span class='lparen'>(</span>
+  <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>moonshotai/MoonViT-SO-400M</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>destination_prefix:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/moonvit</span><span class='tstring_end'>&quot;</span></span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Copy from multiple folders
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_copy_folders'>copy_folders</span><span class='lparen'>(</span>
+  <span class='label'>folders:</span> <span class='lbracket'>[</span>
+    <span class='lbrace'>{</span> <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>org/model-a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tokenizer/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/a/</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span> <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dataset</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>org/data-b</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>  <span class='label'>source_path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>      <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data/backup/</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='rbracket'>]</span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Snapshot download with manifest
+</span><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_snapshot_download'>snapshot_download</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/qwen-snap</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>verify:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:manifest_path</span><span class='rbracket'>]</span>  <span class='comment'># =&gt; &quot;/tmp/qwen-snap/.huggingface_snapshot.json&quot;
+</span></code></pre>
+<h3 id="Cross_Repo_File_Copy">Cross-Repo File Copy</h3>
+<pre class="code ruby"><code class="ruby"><span class='comment'># Single file from model
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_copy_file'>copy_file</span><span class='lparen'>(</span>
+  <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Qwen/Qwen2.5-0.5B-Instruct</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/qwen/config.json</span><span class='tstring_end'>&quot;</span></span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Batch copy from multiple repos
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_copy_files'>copy_files</span><span class='lparen'>(</span>
+  <span class='label'>files:</span> <span class='lbracket'>[</span>
+    <span class='lbrace'>{</span> <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>org/a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>config.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a/config.json</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span> <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dataset</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>org/b</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>source_path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data.csv</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b/data.csv</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='rbracket'>]</span>
+<span class='rparen'>)</span>
+
+<span class='comment'># Batch cross-copy with xetHash
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_copy_from'>copy_from</span><span class='lparen'>(</span>
+  <span class='label'>source_type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>source_repo:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>org/model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>files:</span> <span class='lbracket'>[</span>
+    <span class='lbrace'>{</span> <span class='label'>xet_hash:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>abc123</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>destination:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/config.json</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='rbracket'>]</span>
+<span class='rparen'>)</span>
+</code></pre>
+<h3 id="Bucket_Management">Bucket Management</h3>
+<pre class="code ruby"><code class="ruby"><span class='comment'># Get bucket info
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_bucket_info'>bucket_info</span>  <span class='comment'># =&gt; { &quot;name&quot; =&gt; &quot;...&quot;, &quot;size&quot; =&gt; ... }
+</span>
+<span class='comment'># List buckets in namespace
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_list_buckets'>list_buckets</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_list_buckets'>list_buckets</span><span class='lparen'>(</span><span class='label'>namespace:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>other-org</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+</code></pre>
+<h3 id="Cancel_Tokens">Cancel Tokens</h3>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'>CancelToken</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+<span class='comment'># Pass to any long-running operation
+</span><span class='id identifier rubyid_thread'>thread</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_directories'>directories</span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./large-model</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>models/large</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>cancel_token:</span> <span class='id identifier rubyid_token'>token</span><span class='rparen'>)</span>
+<span class='kw'>end</span>
+
+<span class='comment'># Cancel from another thread
+</span><span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_cancel!'>cancel!</span>
+
+<span class='comment'># Register callbacks
+</span><span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_on_cancel'>on_cancel</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Operation was cancelled</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+
+<span class='comment'># Check status
+</span><span class='id identifier rubyid_token'>token</span><span class='period'>.</span><span class='id identifier rubyid_cancelled?'>cancelled?</span>  <span class='comment'># =&gt; true/false
+</span></code></pre>
+<h3 id="Batch_Results">Batch Results</h3>
+<p>Operations that affect multiple files return a <code>BatchResult</code>:</p>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a.txt</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b.txt</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>c.txt</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span>        <span class='comment'># =&gt; true/false
+</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_succeeded'>succeeded</span>       <span class='comment'># =&gt; [{ type: &quot;deleteFile&quot;, path: &quot;a.txt&quot; }, ...]
+</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_failed'>failed</span>          <span class='comment'># =&gt; [{ path: &quot;b.txt&quot;, error: &quot;conflict&quot; }]
+</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success_count'>success_count</span>   <span class='comment'># =&gt; 2
+</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_failure_count'>failure_count</span>   <span class='comment'># =&gt; 1
+</span></code></pre>
+<h3 id="Logging">Logging</h3>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='label'>token:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HF_TOKEN</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='label'>namespace:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>user</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>bucket:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bucket</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='label'>log_level:</span> <span class='symbol'>:debug</span><span class='comma'>,</span>          <span class='comment'># :debug, :info, :warn, :error, :fatal
+</span>  <span class='label'>log_format:</span> <span class='symbol'>:default</span><span class='comma'>,</span>       <span class='comment'># :default, :plain, :json, :short, or Proc
+</span>  <span class='label'>log_output:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>app.log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>      <span class='comment'># $stdout, $stderr, StringIO, file path, or writable object
+</span>  <span class='label'>log_color:</span> <span class='symbol'>:auto</span>            <span class='comment'># :auto, true, false
+</span><span class='rparen'>)</span>
+
+<span class='comment'># Change at runtime
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>=</span> <span class='symbol'>:warn</span>
+<span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_log_format'>log_format</span> <span class='op'>=</span> <span class='symbol'>:json</span>
+</code></pre>
+<p>Detailed logging guide: <a href="docs/LOGGING.md">docs/LOGGING.md</a></p>
+<hr />
+<h2 id="Error_Handling">Error Handling</h2>
+<pre class="code ruby"><code class="ruby"><span class='kw'>begin</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>missing.bin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/out</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/NotFoundError.html" title="HuggingFaceStorage::NotFoundError (class)">NotFoundError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>File not found: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/AuthenticationError.html" title="HuggingFaceStorage::AuthenticationError (class)">AuthenticationError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Auth failed: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/ConflictError.html" title="HuggingFaceStorage::ConflictError (class)">ConflictError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Conflict: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/ApiError.html" title="HuggingFaceStorage::ApiError (class)">ApiError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>API error (HTTP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span><span class='embexpr_end'>}</span><span class='tstring_content'>): </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/CancelledError.html" title="HuggingFaceStorage::CancelledError (class)">CancelledError</a></span></span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Operation was cancelled</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/PartialFailureError.html" title="HuggingFaceStorage::PartialFailureError (class)">PartialFailureError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_failure_count'>failure_count</span><span class='embexpr_end'>}</span><span class='tstring_content'> operation(s) failed</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_failed'>failed</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='lbracket'>[</span><span class='symbol'>:path</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_f'>f</span><span class='lbracket'>[</span><span class='symbol'>:error</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span>
+</code></pre>
+<p><strong>Error hierarchy:</strong></p>
+<pre class="code ruby"><code class="ruby"><span class='const'><span class='object_link'><a href="HuggingFaceStorage.html" title="HuggingFaceStorage (module)">HuggingFaceStorage</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="HuggingFaceStorage/Error.html" title="HuggingFaceStorage::Error (class)">Error</a></span></span>
+<span class='id identifier rubyid_├──'>├──</span> <span class='const'>AuthenticationError</span>       <span class='comment'># HTTP 401, 403
+</span><span class='id identifier rubyid_├──'>├──</span> <span class='const'>NotFoundError</span>             <span class='comment'># HTTP 404
+</span><span class='id identifier rubyid_├──'>├──</span> <span class='const'>ConflictError</span>             <span class='comment'># HTTP 409
+</span><span class='id identifier rubyid_├──'>├──</span> <span class='const'>ApiError</span>                  <span class='comment'># Other HTTP errors (has .status, .body)
+</span><span class='id identifier rubyid_├──'>├──</span> <span class='const'>CancelledError</span>            <span class='comment'># CancelToken triggered
+</span><span class='id identifier rubyid_└──'>└──</span> <span class='const'>PartialFailureError</span>       <span class='comment'># Batch operation partial failure (has .result)
+</span></code></pre>
+<hr />
+<h2 id="Architecture">Architecture</h2>
+<pre class="code ruby"><code class="ruby">HuggingFaceStorage
+├── Client                       ← Entry point, orchestrator
+│   ├── FileManager              ← File facade (delegates to services below)
+│   │   ├── FileUploadService    ← File upload (local, bytes, glob, exclude)
+│   │   ├── FileDeleteService    ← File deletion (single, batch)
+│   │   ├── FileCopyService      ← File copy (same-bucket, cross-repo, CopyPipeline)
+│   │   ├── FileEditor           ← In-place remote file editing
+│   │   └── FileDownloader       ← File download, XetLazyFile creation
+│   ├── DirectoryManager         ← Directory facade (delegates to services below)
+│   │   ├── DirectoryCrudService ← Directory CRUD (create, delete, list, move)
+│   │   ├── DirectoryTransferService ← Upload/download/snapshot
+│   │   ├── DirectoryCopyService ← Directory copy operations
+│   │   └── MetadataCache        ← Existence/listing cache
+│   ├── ApiClient                ← HTTP wrapper (composition-based)
+│   │   ├── HttpPool             ← Thread-safe HTTP connection pool
+│   │   ├── Retryable            ← Retry logic (429/5xx, exponential backoff)
+│   │   ├── RedirectFollower     ← Xet redirect chain handling
+│   │   ├── RequestLogger        ← HTTP request/response debug logging
+│   │   ├── BatchHandler         ← Batch API operation dispatch
+│   │   └── PaginationService    ← Paginated listing
+│   ├── XetStorage               ← Xet CAS protocol
+│   │   ├── XetHasher            ← CDC gearhash + Blake3 hashing
+│   │   ├── XetSerializer        ← Xorb/Shard binary serialization
+│   │   ├── XetStreamProcessor   ← Streaming CDC upload
+│   │   ├── XetUploader          ← Xet file upload
+│   │   ├── XetDownloader        ← Xet file download
+│   │   ├── XetDataUploader      ← Raw data upload
+│   │   ├── XetTokenManager      ← Token refresh for Xet operations
+│   │   └── CasClient            ← CAS protocol client
+│   ├── SameBucketCopyService    ← Same-bucket Xet copy
+│   ├── CrossRepoCopyService     ← Cross-repo Xet copy
+│   ├── CopyPipeline             ← Batch cross-copy orchestration
+│   ├── CopyPlanBuilder          ← Plan server-side copy operations
+│   ├── RepoFileCopier           ← Download + re-upload for non-xet files
+│   ├── Authentication           ← Token management
+│   ├── HFLogger                 ← Configurable logging
+│   │   ├── Color                ← ANSI color constants + strip
+│   │   ├── StripIO              ← ANSI strip wrapper
+│   │   ├── TeeIO                ← Multi-output IO tee
+│   │   └── NullLogger           ← No-op logger
+│   ├── Instrumentation          ← Metrics + notifications mixin
+│   │   ├── MetricsRegistry      ← Prometheus-style counters/histograms
+│   │   ├── NullMetricsRegistry  ← No-op metrics
+│   │   ├── Notifications        ← Publish/subscribe event system
+│   │   └── NullNotifications    ← No-op notifications
+│   └── Configuration            ← All config (7 sub-config structs)
+│       ├── HttpConfig           ← Timeouts, proxy, max_redirects
+│       ├── RetryConfig          ← Retries, backoff, retryable statuses
+│       ├── BatchConfig          ← Batch sizes
+│       ├── LogConfig            ← Log level, format, colorize
+│       ├── CacheConfig          ← Cache TTLs, max entries
+│       ├── ParallelConfig       ← Thread counts
+│       └── EditConfig           ← Edit patch sizes
+│
+├── XetLazyFile           ← Lazy file handle (metadata-first, download on demand)
+├── CancelToken           ← Cooperative cancellation (thread-safe)
+├── BatchResult           ← Track succeeded/failed operations (thread-safe)
+├── Snapshot              ← Directory snapshot with JSON manifest
+├── DirectoryUploader     ← Smart batch/individual upload by file size
+├── DirectoryDownloader   ← Parallel directory download
+├── Blake3Pool            ← Thread-local Blake3 hash contexts
+├── Blake3Binding         ← Fiddle FFI to libblake3
+├── Blake3Buffers         ← Thread-local IOBuffer pool
+├── CdcChunker            ← CDC gearhash chunking
+├── GearhashTable         ← Precomputed gearhash table
+│
+├── EntryClassifier       ← Classify files: xet-copy, LFS (error), download
+├── ExcludeMatcher        ← Glob pattern matching for file exclusion
+├── LfsGuard              ← Validate LFS files are migrated to xet
+├── TreeLoader            ← Load tree from Array or JSON file
+├── BucketQuery           ← Shared bucket paths-info API queries
+├── ApiPaths              ← Centralized HuggingFace API path constants
+├── Paths                 ← Path normalization utilities
+├── TokenRetryable        ← Token refresh + retry wrapper
+├── CLIFormatter          ← CLI output formatting
+└── Utils                 ← human_size, hash_to_hex
+</code></pre>
+<p><strong>Dependencies:</strong> <code>digest-blake3</code> (~&gt; 1.5), <code>thor</code> (~&gt; 1.3)</p>
+<hr />
+<h2 id="Project_Structure">Project Structure</h2>
+<pre class="code ruby"><code class="ruby">├── src/
+│   ├── hugging_face_storage.rb              # Entry point + autoload
+│   └── hugging_face_storage/
+│       ├── version.rb                       # VERSION = &quot;1.0.0&quot;
+│       ├── errors.rb                        # Error hierarchy (7 error classes)
+│       ├── authentication.rb                # Token management (HF_TOKEN env)
+│       ├── http_pool.rb                     # Thread-safe HTTP connection pool
+│       ├── utils.rb                         # human_size, hash_to_hex
+│       ├── paths.rb                         # Path normalization
+│       ├── lfs_guard.rb                     # LFS file validation
+│       ├── exclude_matcher.rb               # Glob pattern exclusion
+│       ├── local_file_collector.rb          # File collection with excludes
+│       ├── bucket_query.rb                  # Bucket paths-info queries
+│       ├── entry_classifier.rb              # File classification (xet/LFS/download)
+│       ├── tree_loader.rb                   # Tree from Array or JSON file
+│       ├── api_client.rb                    # HTTP client (composition-based)
+│       ├── api_paths.rb                     # Centralized API path constants
+│       ├── http_pool.rb                     # Thread-safe HTTP connection pool
+│       ├── retryable.rb                     # Retry logic with backoff
+│       ├── redirect_follower.rb             # Xet redirect chain handler
+│       ├── request_logger.rb                # HTTP debug logging
+│       ├── batch_handler.rb                 # Batch API dispatch
+│       ├── pagination_service.rb            # Paginated API listing
+│       ├── file_downloader.rb               # File download + XetLazyFile
+│       ├── instrumentation.rb               # Metrics/notifications mixin
+│       ├── metrics_registry.rb              # Prometheus-style counters
+│       ├── null_metrics_registry.rb         # No-op metrics
+│       ├── notifications.rb                 # Publish/subscribe events
+│       ├── null_notifications.rb            # No-op notifications
+│       ├── token_retryable.rb               # Token refresh + retry
+│       ├── configuration.rb                 # All config (7 sub-config structs)
+│       ├── xet_hasher.rb                    # Blake3 hashing + CDC gearhash chunking
+│       ├── xet_serializer.rb                # Xorb/Shard binary format serialization
+│       ├── xet_stream_processor.rb          # Streaming CDC upload processor
+│       ├── xet_data_uploader.rb             # Xet data upload
+│       ├── xet_uploader.rb                  # Xet file upload
+│       ├── xet_downloader.rb                # Xet file download
+│       ├── xet_token_manager.rb             # Xet token refresh
+│       ├── cas_client.rb                    # CAS protocol client
+│       ├── same_bucket_copy_service.rb      # Same-bucket Xet copy
+│       ├── cross_repo_copy_service.rb       # Cross-repo Xet copy
+│       ├── copy_pipeline.rb                 # Batch cross-copy orchestration
+│       ├── repo_file_copier.rb              # Download + upload for non-xet files
+│       ├── file_info.rb                     # FileInfo value object
+│       ├── xet_lazy_file.rb                 # Lazy file handle
+│       ├── file_upload_service.rb           # File upload service
+│       ├── file_delete_service.rb           # File deletion service
+│       ├── file_copy_service.rb             # File copy service
+│       ├── file_editor.rb                   # Remote file editing
+│       ├── file_manager.rb                  # File facade
+│       ├── directory_crud_service.rb        # Directory CRUD service
+│       ├── directory_transfer_service.rb    # Directory upload/download service
+│       ├── directory_copy_service.rb        # Directory copy service
+│       ├── metadata_cache.rb                # Existence/listing cache
+│       ├── directory_downloader.rb          # Parallel directory download
+│       ├── directory_uploader.rb            # Smart batch/individual upload
+│       ├── directory_manager.rb             # Directory facade
+│       ├── batch_result.rb                  # Batch operation result tracking
+│       ├── cancel_token.rb                  # Cooperative cancellation
+│       ├── snapshot.rb                      # Directory snapshot + manifest
+│       ├── logger.rb                        # HFLogger
+│       ├── logger/                          # Logger sub-modules
+│       │   ├── color.rb                     # ANSI color constants
+│       │   ├── io_helpers.rb                # StripIO, TeeIO
+│       │   └── null_logger.rb               # No-op logger
+│       ├── cli.rb                           # Thor CLI
+│       ├── cli_formatter.rb                 # CLI output formatting
+│       ├── client.rb                        # Orchestrator
+│       ├── copy_plan_builder.rb             # Server-side copy plan builder
+│       ├── dir_info.rb                      # DirInfo value object
+│       ├── blake3_pool.rb                   # Thread-local Blake3 contexts
+│       ├── blake3_binding.rb                # Fiddle FFI to libblake3
+│       ├── cdc_chunker.rb                   # CDC gearhash chunker
+│       └── gearhash_table.rb                # Precomputed gearhash table
+├── spec/                                    # 1079 RSpec test cases
+├── bin/
+│   ├── hfs                                  # CLI binary
+│   ├── rspec                                # RSpec binstub
+│   └── rake                                 # Rake binstub
+├── docs/
+│   ├── USAGE_GUIDE.md                       # Detailed API guide (EN)
+│   ├── USAGE_GUIDE.vi.md                    # Detailed API guide (VI)
+│   ├── CLI.md                               # CLI reference (VI)
+│   ├── LOGGING.md                           # Logging guide (EN)
+│   └── LOGGING.vi.md                        # Logging guide (VI)
+├── examples/
+│   ├── usage.rb                             # Runnable examples (EN)
+│   └── usage.vi.rb                          # Runnable examples (VI)
+├── .github/workflows/ci.yml                 # CI workflow
+├── Gemfile                                  # digest-blake3 + thor + rspec + webmock
+├── Rakefile                                 # rake spec
+├── .rspec                                   # RSpec config
+└── LICENSE                                  # MIT
+</code></pre>
+<hr />
+<h2 id="Testing">Testing</h2>
+<pre class="code bash"><code class="bash"># Run all tests
+rake
+
+# Run via rspec directly
+bundle exec rspec
+
+# Run a single spec file
+bundle exec rspec spec/hugging_face_storage/xet_storage_spec.rb
+
+# Run tests matching a pattern
+bundle exec rspec --example &quot;blake3&quot;
+</code></pre>
+<p><strong>1079 test cases</strong> — <strong>99.79% line coverage</strong> — covering:</p>
+<ul>
+<li>Authentication, Logger, Error classes, Paths, Utils</li>
+<li>ApiClient (HTTP methods, pagination, retry, error handling, streaming, sensitive header masking)</li>
+<li>XetStorage (CDC chunking, Blake3 hashing, xorb/shard serialization, upload/download)</li>
+<li>FileManager (upload, download, delete, move, copy, list, metadata, exists, edit, glob, cross-repo)</li>
+<li>FileUploadService, FileDeleteService, FileCopyService</li>
+<li>DirectoryManager (create, delete, upload, download, copy, copy_from_tree, copy_from_repo, copy_folders, cross-repo, snapshot)</li>
+<li>DirectoryCrudService, DirectoryTransferService, DirectoryCopyService</li>
+<li>DirectoryUploader, DirectoryDownloader, RepoFileCopier, CopyPlanBuilder</li>
+<li>Configuration (all 7 sub-config structs with backward-compatible delegates)</li>
+<li>CancelToken, BatchResult, Snapshot, XetLazyFile</li>
+<li>CLI (all commands), CLIFormatter</li>
+<li>Client (initialization, bucket_info, list_buckets, log_level)</li>
+</ul>
+<p>All HTTP requests are mocked with WebMock — <strong>no real API calls during tests</strong>.</p>
+<hr />
+<h2 id="Documentation">Documentation</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="docs/USAGE_GUIDE.md">Usage Guide (EN)</a></td>
+<td>Full API reference with parameters and examples</td>
+</tr>
+<tr>
+<td><a href="docs/USAGE_GUIDE.vi.md">Usage Guide (VI)</a></td>
+<td>Vietnamese usage guide</td>
+</tr>
+<tr>
+<td><a href="docs/CLI.md">CLI Reference (VI)</a></td>
+<td>CLI command reference</td>
+</tr>
+<tr>
+<td><a href="docs/LOGGING.md">Logging Guide (EN)</a></td>
+<td>Logging configuration (level, format, output, color)</td>
+</tr>
+<tr>
+<td><a href="docs/LOGGING.vi.md">Logging Guide (VI)</a></td>
+<td>Vietnamese logging guide</td>
+</tr>
+<tr>
+<td><a href="examples/usage.rb">Code Examples</a></td>
+<td>Runnable Ruby file with full use cases</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="Requirements">Requirements</h2>
+<ul>
+<li><strong>Ruby</strong> &gt;= 3.1</li>
+<li><strong>Gems:</strong> <code>digest-blake3</code> ~&gt; 1.5, <code>thor</code> ~&gt; 1.3</li>
+<li><strong>HuggingFace account</strong> with a Storage Bucket created</li>
+</ul>
+<hr />
+<h2 id="License">License</h2>
+<p><a href="LICENSE">MIT</a></p></div></div>
+
+      <div id="footer">
+  Generated on Sun Jun 28 10:04:25 2026 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.44 (ruby-3.2.2).
+</div>
+
+    </div>
+  </body>
+</html>

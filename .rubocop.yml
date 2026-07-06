@@ -1,0 +1,357 @@
+inherit_from: .rubocop_todo.yml
+
+plugins:
+  - rubocop-rspec
+  - rubocop-performance
+
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "vendor/**/*"
+    - "bin/**/*"
+    - "temp/**/*"
+    - "examples/**/*"
+    - "bench/**/*"
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always_true
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/cross_repo_copy_service.rb
+    - src/hugging_face_storage/same_bucket_copy_service.rb
+    - src/hugging_face_storage/xet_stream_processor.rb
+    - src/hugging_face_storage/xet_uploader.rb
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+  Exclude:
+    - spec/**/*
+
+Style/FormatStringToken:
+  EnforcedStyle: unannotated
+
+Style/Alias:
+  EnforcedStyle: prefer_alias
+
+Style/NumericLiterals:
+  MinDigits: 11
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 28
+
+Metrics/ClassLength:
+  Max: 100
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/BlockLength:
+  Max: 30
+  Exclude:
+    - "spec/**/*"
+
+Metrics/ParameterLists:
+  Max: 10
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+Performance/TimesMap:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 30
+
+RSpec/MultipleExpectations:
+  Max: 10
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 12
+
+RSpec/InstanceVariable:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/ReceiveMessages:
+  Enabled: false
+
+RSpec/MultipleDescribes:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/SubjectStub:
+  Enabled: false
+
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+RSpec/NoExpectationExample:
+  Enabled: false
+
+RSpec/RepeatedExample:
+  Enabled: false
+
+RSpec/ScatteredLet:
+  Enabled: false
+
+RSpec/IdenticalEqualityAssertion:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
+RSpec/EmptyLineAfterFinalLet:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: false
+
+RSpec/LeadingSubject:
+  Enabled: false
+
+# === Layout cops ===
+Layout/ArgumentAlignment:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/copy_executor.rb
+    - src/hugging_face_storage/file_manager.rb
+    - src/hugging_face_storage/xet_hasher.rb
+Layout/ArrayAlignment:
+  Exclude:
+    - spec/**/*
+Layout/EmptyLineAfterGuardClause:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/utils.rb
+    - src/hugging_face_storage/xet_hasher.rb
+Layout/EmptyLineBetweenDefs:
+  Exclude:
+    - src/hugging_face_storage/errors.rb
+    - src/hugging_face_storage/logger.rb
+Layout/EmptyLinesAroundClassBody:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/directory_manager.rb
+Layout/ExtraSpacing:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/logger.rb
+Layout/FirstArgumentIndentation:
+  Exclude:
+    - spec/**/*
+Layout/HashAlignment:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/directory_uploader.rb
+    - src/hugging_face_storage/logger.rb
+Layout/LineContinuationLeadingSpace:
+  Exclude:
+    - src/hugging_face_storage/copy_plan_builder.rb
+    - src/hugging_face_storage/entry_classifier.rb
+Layout/MultilineMethodCallBraceLayout:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/copy_executor.rb
+    - src/hugging_face_storage/directory_uploader.rb
+Layout/MultilineMethodCallIndentation:
+  Exclude:
+    - spec/**/*
+
+# === Lint cops ===
+Lint/AmbiguousOperatorPrecedence:
+  Exclude:
+    - spec/**/*
+Lint/DuplicateBranch:
+  Exclude:
+    - src/hugging_face_storage/logger.rb
+    - "src/hugging_face_storage/logging/logger.rb"
+Lint/EmptyBlock:
+  Exclude:
+    - spec/**/*
+Lint/MissingSuper:
+  Exclude:
+    - src/hugging_face_storage/authentication.rb
+Lint/NonAtomicFileOperation:
+  Exclude:
+    - src/hugging_face_storage/logger.rb
+Lint/SuppressedException:
+  Exclude:
+    - src/hugging_face_storage/xet_hasher.rb
+Lint/UnusedBlockArgument:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/directory_uploader.rb
+Lint/UnusedMethodArgument:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/cross_repo_copy_service.rb
+Lint/UselessAssignment:
+  Exclude:
+    - spec/**/*
+Lint/UselessConstantScoping:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+
+# === Metrics ===
+Metrics/CollectionLiteralLength:
+  Exclude:
+    - src/hugging_face_storage/xet_hasher.rb
+    - src/hugging_face_storage/gearhash_table.rb
+    - "src/hugging_face_storage/xet/gearhash_table.rb"
+
+# === Naming ===
+Naming/AccessorMethodName:
+  Exclude:
+    - spec/**/*
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    - src/hugging_face_storage/xet_hasher.rb
+Naming/PredicateMethod:
+  Exclude:
+    - src/hugging_face_storage/directory_manager.rb
+    - src/hugging_face_storage/directory_crud_service.rb
+    - src/hugging_face_storage/directory_transfer_service.rb
+    - src/hugging_face_storage/directory_copy_service.rb
+    - "src/hugging_face_storage/ops/directory_crud_service.rb"
+
+# === Performance ===
+Performance/RedundantBlockCall:
+  Exclude:
+    - src/hugging_face_storage/cancel_token.rb
+    - src/hugging_face_storage/logger.rb
+    - src/hugging_face_storage/xet_lazy_file.rb
+
+# === Style cops ===
+Style/BitwisePredicate:
+  Exclude:
+    - src/hugging_face_storage/xet_hasher.rb
+Style/BlockDelimiters:
+  Exclude:
+    - spec/**/*
+Style/CombinableLoops:
+  Exclude:
+    - src/hugging_face_storage/xet_serializer.rb
+Style/FetchEnvVar:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/authentication.rb
+    - src/hugging_face_storage/cli.rb
+    - src/hugging_face_storage/cli_formatter.rb
+Style/GuardClause:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/bucket_query.rb
+Style/IfUnlessModifier:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/bucket_query.rb
+    - src/hugging_face_storage/directory_manager.rb
+    - src/hugging_face_storage/directory_uploader.rb
+    - src/hugging_face_storage/file_manager.rb
+    - src/hugging_face_storage/logger.rb
+    - src/hugging_face_storage/redirect_follower.rb
+    - src/hugging_face_storage/same_bucket_copy_service.rb
+    - src/hugging_face_storage/snapshot.rb
+    - src/hugging_face_storage/xet_stream_processor.rb
+    - src/hugging_face_storage/xet_uploader.rb
+Style/KeywordParametersOrder:
+  Exclude:
+    - src/hugging_face_storage.rb
+    - src/hugging_face_storage/client.rb
+    - src/hugging_face_storage/copy_plan_builder.rb
+Style/Lambda:
+  Exclude:
+    - src/hugging_face_storage/copy_executor.rb
+    - src/hugging_face_storage/copy_plan_builder.rb
+    - src/hugging_face_storage/logger.rb
+Style/MapToSet:
+  Exclude:
+    - src/hugging_face_storage/bucket_query.rb
+Style/MultilineBlockChain:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/entry_classifier.rb
+Style/NumericPredicate:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/file_manager.rb
+    - src/hugging_face_storage/xet_hasher.rb
+    - src/hugging_face_storage/xet_serializer.rb
+Style/ReduceToHash:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+    - src/hugging_face_storage/directory_manager.rb
+    - src/hugging_face_storage/entry_classifier.rb
+Style/RedundantBegin:
+  Exclude:
+    - src/hugging_face_storage/api_client.rb
+Style/RedundantConstantBase:
+  Exclude:
+    - spec/**/*
+Style/RedundantRegexpEscape:
+  Exclude:
+    - src/hugging_face_storage/logger.rb
+Style/RegexpLiteral:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/file_manager.rb
+    - src/hugging_face_storage/logger.rb
+Style/SafeNavigation:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/xet_hasher.rb
+Style/Semicolon:
+  Exclude:
+    - spec/**/*
+Style/SingleLineMethods:
+  Exclude:
+    - src/hugging_face_storage/logger.rb
+Style/StringLiteralsInInterpolation:
+  Exclude:
+    - spec/**/*
+    - src/hugging_face_storage/bucket_query.rb
+    - src/hugging_face_storage/directory_manager.rb
+    - src/hugging_face_storage/file_manager.rb
+    - src/hugging_face_storage/snapshot.rb
+    - src/hugging_face_storage/xet_lazy_file.rb
+Style/FileOpen:
+  Exclude:
+    - "src/hugging_face_storage/logging/logger.rb"
+
+Style/WordArray:
+  Exclude:
+    - spec/**/*

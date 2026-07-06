@@ -1,0 +1,29 @@
+{
+  "name": "hugging_face_storage",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "RUBY_VERSION": "3.3"
+    }
+  },
+  "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rebornix.Ruby",
+        "Shopify.ruby-lsp",
+        "misogi.ruby-rubocop",
+        "mbessey.vscode-ruby-test-adapter"
+      ],
+      "settings": {
+        "ruby.useLanguageServer": true,
+        "ruby.lint": { "rubocop": true },
+        "files.associations": { "*.rbs": "ruby" }
+      }
+    }
+  },
+  "postCreateCommand": "gem install bundler rake && bundle install",
+  "containerEnv": {
+    "SHELL": "/bin/bash"
+  }
+}

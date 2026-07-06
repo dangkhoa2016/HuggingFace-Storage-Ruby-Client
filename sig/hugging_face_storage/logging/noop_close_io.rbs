@@ -1,0 +1,6 @@
+module HuggingFaceStorage
+  class NoopCloseIO < ::SimpleDelegator
+    def close: -> nil
+    def closed?: -> false
+  end
+end

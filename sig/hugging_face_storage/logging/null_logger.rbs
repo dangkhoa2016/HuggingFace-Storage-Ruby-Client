@@ -1,0 +1,14 @@
+module HuggingFaceStorage
+  class NullLogger
+    def debug: (?String? message) ?{ () -> String } -> void
+    def info: (?String? message) ?{ () -> String } -> void
+    def warn: (?String? message) ?{ () -> String } -> void
+    def error: (?String? message) ?{ () -> String } -> void
+    def fatal: (?String? message) ?{ () -> String } -> void
+    def level: -> Symbol
+    def level=: (untyped) -> void
+    def format: -> Symbol
+    def format=: (untyped) -> void
+    def close: -> void
+  end
+end

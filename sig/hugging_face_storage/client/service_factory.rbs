@@ -1,0 +1,18 @@
+module HuggingFaceStorage
+  class Client
+    class ServiceFactory
+      module BuildHelpers
+        def build_file_services: (XetUploader xet_uploader, XetDownloader xet_downloader, ApiClient api, SameBucketCopyService same_bucket_copy, CrossRepoCopyService cross_repo_copy, CopyPipeline copy_pipeline) -> FileManager
+        def build_directory_services: (ApiClient api, XetUploader xet_uploader, XetDownloader xet_downloader, FileManager files, CopyPipeline copy_pipeline, SourceIterator source_iterator) -> DirectoryManager
+        def build_directory_copy_service: (ApiClient api, FileManager files, CopyPipeline copy_pipeline, SourceIterator source_iterator) -> DirectoryCopyService
+      end
+
+      include BuildHelpers
+
+      def initialize: (config: Configuration, logger: HFLogger, token: String, bucket_id: String, ?metrics_registry: Object?, ?notifications: Object?) -> void
+      def build_auth_and_transport: -> [Authentication, ApiClient]
+      def build_xet_services: (ApiClient api) -> [XetUploader, XetDownloader]
+      def build_copy_services: (ApiClient api, XetUploader xet_uploader) -> [SameBucketCopyService, CopyPipeline, CrossRepoCopyService, SourceIterator]
+    end
+  end
+end

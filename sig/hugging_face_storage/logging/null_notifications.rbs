@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  class NullNotifications
+    def subscribe: (*untyped) -> nil
+    def publish: (*untyped) -> nil
+    def subscribed?: (*untyped) -> false
+
+    def self.instance: () -> NullNotifications
+  end
+end

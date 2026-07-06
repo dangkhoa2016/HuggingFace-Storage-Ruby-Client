@@ -1,0 +1,26 @@
+module HuggingFaceStorage
+  module CLIFormatter
+    def self.format_table: (Array[Array[untyped]] rows, Array[String | Symbol] headers) -> String
+    def self.format_json: (untyped data) -> String
+    def self.format_output: (Array[untyped] data, String format, ?headers: Array[String | Symbol]?) -> void
+    def self.parse_bucket: (String bucket_spec) -> Hash[Symbol, String]
+    def self.read_session_token: -> String?
+    def self.build_client: (String bucket_spec, ?token: String?) -> untyped
+    def self.format_error: (String message, ?hint: String?) -> String
+
+    private
+
+    def self.calculate_column_widths: (Array[Array[untyped]] rows, Array[String | Symbol] headers) -> Array[Integer]
+    def self.format_table_rows: (Array[Array[untyped]] rows, Array[Integer] widths) -> Array[String]
+    def format_table: (Array[Array[untyped]] rows, Array[String | Symbol] headers) -> String
+    def format_json: (untyped data) -> String
+    def format_output: (Array[untyped] data, String format, ?headers: Array[String | Symbol]?) -> void
+    def parse_bucket: (String bucket_spec) -> Hash[Symbol, String]
+    def read_session_token: -> String?
+    def build_client: (String bucket_spec, ?token: String?) -> untyped
+    def compute_column_widths: (Array[Array[untyped]] rows, Array[String | Symbol] headers) -> Array[Integer]
+    def calculate_column_widths: (Array[Array[untyped]] rows, Array[String | Symbol] headers) -> Array[Integer]
+    def format_table_rows: (Array[Array[untyped]] rows, Array[Integer] widths) -> Array[String]
+    def format_error: (String message, ?hint: String?) -> String
+  end
+end

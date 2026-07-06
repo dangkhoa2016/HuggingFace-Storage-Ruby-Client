@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  module CliCommands
+    module Advanced
+      def snapshot: (String bucket, String remote_path, String local_dir) -> void
+      def edit: (String bucket, String remote_path) -> void
+
+    end
+  end
+end

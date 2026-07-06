@@ -1,0 +1,16 @@
+module HuggingFaceStorage
+  class Client
+    class Builder
+      DEFAULTS: Hash[Symbol, Object]
+
+      def initialize: (?Hash[Symbol, untyped] options) -> void
+      def build: -> Client
+
+      private
+
+      def validate!: -> void
+      def build_config: -> Configuration
+      def build_logger: -> HFLogger
+    end
+  end
+end

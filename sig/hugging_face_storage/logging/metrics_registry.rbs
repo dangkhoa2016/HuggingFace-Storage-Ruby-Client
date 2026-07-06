@@ -1,0 +1,10 @@
+module HuggingFaceStorage
+  class MetricsRegistry
+    def initialize: -> void
+    def increment: (Symbol | String name, ?(Integer | Float) amount) -> void
+    def counter: (Symbol | String name) -> (Integer | Float)
+    def all: -> Hash[Symbol, untyped]
+    def reset: -> void
+    def to_h: -> Hash[Symbol, untyped]
+  end
+end

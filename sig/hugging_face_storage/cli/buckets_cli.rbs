@@ -1,0 +1,5 @@
+module HuggingFaceStorage
+  class BucketsCLI
+    Error: singleton(HuggingFaceStorage::Error)
+  end
+end

@@ -1,0 +1,24 @@
+module HuggingFaceStorage
+  module Subscribable
+    module Initialization: Module
+    end
+    @subscribers: Array[Hash[Symbol, Object]]
+
+    def subscribers: -> Array[Hash[Symbol, Object]]
+    def subscribe: (?String | Regexp | Array[untyped]? pattern) { (String, Hash[Symbol, untyped]) -> void } -> String
+    def unsubscribe: (String id) -> void
+    def clear: -> void
+    def publish: (String name, Hash[Symbol, Object] payload) -> void
+
+    private
+
+    def matches?: (untyped pattern, String name) -> bool
+    def logger: -> HFLogger?
+  end
+
+  module Notifications
+    class Channel
+      include Subscribable
+    end
+  end
+end

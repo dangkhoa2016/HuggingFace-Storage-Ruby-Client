@@ -1,0 +1,11 @@
+module HuggingFaceStorage
+  module CliCommands
+    module Manage
+      def delete: (String bucket, String path) -> void
+      def move: (String bucket, String source, String dest) -> void
+      def list: (String bucket, ?String? path) -> void
+      def info: (String bucket, ?String? path) -> void
+
+    end
+  end
+end

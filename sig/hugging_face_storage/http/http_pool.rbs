@@ -1,0 +1,19 @@
+module HuggingFaceStorage
+  class HttpPool
+    REAP_EVERY: Integer
+
+    @connections: Hash[String, { http: Net::HTTP, last_used: Time }]
+
+    def initialize: (config: Configuration, ?logger: HFLogger?) -> void
+    def with_connection: (URI uri) { (Net::HTTP) -> untyped } -> untyped
+    def close_all_connections: -> void
+    def reap_idle_connections: (?Time now) -> Integer
+
+    private
+
+    def acquire: (URI uri) -> Net::HTTP
+    def release: (URI uri, Net::HTTP http) -> void
+    def pool_key: (URI uri) -> String
+    def build_http: (URI uri) -> Net::HTTP
+  end
+end

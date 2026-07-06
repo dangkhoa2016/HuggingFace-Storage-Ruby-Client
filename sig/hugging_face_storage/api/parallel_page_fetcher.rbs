@@ -1,0 +1,18 @@
+module HuggingFaceStorage
+  class ParallelPageFetcher
+    MAX_CONCURRENCY: Integer
+
+    def initialize: (executor: untyped, logger: HFLogger?, cancel_token: CancelToken?) -> void
+    def fetch_pages: (URI base_uri, String page_param, Integer base_page, ?max_concurrency: Integer, ?raise_on_partial_failure: bool) -> Array[Hash[String, Object]]
+
+    private
+
+    def log_batch_results: (Array[Hash[Symbol, untyped]] batch_results, Integer next_page) -> void
+    def build_uris: (URI base_uri, String page_param, Integer next_page, Integer count) -> Array[URI]
+    def fetch_batch: (Array[URI] uris, Integer next_page) -> [Array[Hash[Symbol, untyped]], Array[Hash[Symbol, untyped]]]
+    def extract_next_link: (Net::HTTPResponse response) -> String?
+    def cap_concurrency: (Integer max_threads) -> Integer
+    def handle_failed_pages?: (Array[Hash[Symbol, untyped]] pages, bool raise_on_partial_failure, Integer effective_concurrency) -> bool
+    def more_pages?: (Array[Hash[Symbol, untyped]] batch_results) -> bool
+  end
+end

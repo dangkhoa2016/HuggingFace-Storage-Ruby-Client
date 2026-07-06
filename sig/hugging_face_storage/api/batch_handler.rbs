@@ -1,0 +1,15 @@
+module HuggingFaceStorage
+  class BatchHandler
+    def initialize: (logger: untyped, api_client: ApiClient) -> void
+    def batch: (String bucket_id, Array[Hash[Symbol, untyped]] operations, ?cancel_token: CancelToken?, ?raise_on_partial_failure: bool) -> BatchResult
+    def post_ndjson: (String path, Array[Hash[Symbol, untyped]] operations, ?cancel_token: CancelToken?) -> (Hash[String, untyped] | Array[untyped] | nil)
+
+    private
+
+    def process_batch_with_retry: (String bucket_id, Array[Hash[Symbol, untyped]] operations, CancelToken? cancel_token, bool raise_on_partial_failure) -> BatchResult
+    def parse_batch_response: (BatchResult result, (Hash[String, untyped] | Array[untyped])? response, Array[Hash[Symbol, untyped]] operations) -> void
+    def parse_batch_failures: (BatchResult result, String? body, Array[Hash[Symbol, untyped]] operations) -> void
+    def try_parse_json: (String body) -> (Hash[String, untyped] | Array[untyped] | nil)
+    def classify_batch_entry: (BatchResult result, Hash[String, untyped] entry, (Hash[Symbol, untyped] | nil) operation) -> void
+  end
+end

@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class RedirectFollower
+    def initialize: (http_pool: HttpPool, ?header_applier: Proc?) -> void
+    def follow_redirects: (URI uri, ?max_redirects: Integer, ?cancel_token: CancelToken?, ?streaming: bool, ?failure_message: String, ?cas_token: String?) ?{ (String) -> void } -> Net::HTTPResponse?
+    def build_redirect_request: (URI uri) -> Net::HTTP::Get
+    def handle_redirect_or_error: (Net::HTTPResponse response, Integer code, URI uri, Integer redirects, Integer max_redirects, ?String failure_message) -> URI?
+
+    private
+
+    def execute_request: (URI uri, bool streaming, CancelToken? cancel_token, String? cas_token) ?{ (Net::HTTPResponse) -> void } -> untyped
+    def handle_redirect: (Net::HTTPResponse response, URI uri, Integer max_redirects, Integer redirects, ?String failure_message) -> URI?
+  end
+end

@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  class ApiClient
+    class AuthHeaders
+      def initialize: (auth: Authentication?) -> void
+      def call: -> Hash[String, String]
+      def apply: (Net::HTTPRequest request) -> void
+    end
+  end
+end

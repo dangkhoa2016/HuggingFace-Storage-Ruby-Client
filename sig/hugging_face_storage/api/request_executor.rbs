@@ -1,0 +1,13 @@
+module HuggingFaceStorage
+  class ApiClient
+    class RequestExecutor
+      def initialize: (transport: HTTPTransport, config: Configuration, logger: HFLogger | NullLogger) -> void
+      def execute: (URI uri, Net::HTTPRequest request, ?raw: bool, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[Object] | Net::HTTPResponse | nil)
+      def execute_raw: (URI uri, Net::HTTPRequest request, ?cancel_token: CancelToken?) -> Net::HTTPResponse
+      private
+
+      def execute_with_retry: (URI uri, Net::HTTPRequest request, ?cancel_token: CancelToken?) -> Net::HTTPResponse
+      def handle_status: (Net::HTTPResponse response) -> Net::HTTPResponse
+    end
+  end
+end

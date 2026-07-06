@@ -1,0 +1,49 @@
+module HuggingFaceStorage
+  class ApiClient
+    include FileEndpoints
+    include DirectoryEndpoints
+    include ManagementEndpoints
+
+    DEFAULT_BASE_URL: String
+
+    attr_reader config: Configuration
+    attr_reader endpoint: String
+
+    def initialize: (
+      ?auth: Authentication?,
+      ?endpoint: String?,
+      ?logger: HFLogger?,
+      ?config: Configuration?,
+      ?transport: HTTPTransport?,
+      ?file_existence: FileExistence?,
+      ?batch_handler: BatchHandler?,
+      ?file_downloader: FileDownloader?
+    ) -> void
+
+    def get: (String path, ?params: Hash[String | Symbol, Object], ?raw: bool, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[untyped] | String | nil)
+
+    def get_paginated: (String path, ?params: Hash[String | Symbol, Object], ?cancel_token: CancelToken?, ?max_concurrency: Integer, ?raise_on_partial_failure: bool) -> Array[untyped]
+
+    def post: (String path, ?body: Object?, ?content_type: String, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[untyped] | nil)
+
+    def put: (String path, body: Object?, ?content_type: String, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[untyped] | nil)
+
+    def delete: (String path, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[untyped] | nil)
+
+    def head: (String path, ?cancel_token: CancelToken?) -> Net::HTTPResponse
+
+    def close_all_connections: -> void
+
+    def build_uri: (String path, ?Hash[String | Symbol, Object] params) -> URI
+
+    def execute: (URI uri, Net::HTTPRequest request, ?raw: bool, ?cancel_token: CancelToken?) -> (Hash[String, Object] | Array[untyped] | Net::HTTPResponse | nil)
+
+    def execute_raw: (URI uri, Net::HTTPRequest request, ?cancel_token: CancelToken?) -> (Net::HTTPResponse | Hash[String, Object] | Array[untyped] | nil)
+
+    private
+
+    def request: (Symbol method, String path, **untyped) -> String
+    def pagination_service: -> PaginationService
+    def parse_json: (String data) -> (Hash[String, Object] | Array[untyped])
+  end
+end

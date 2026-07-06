@@ -1,0 +1,4 @@
+module HuggingFaceStorage
+  module DirectoryEndpoints
+  end
+end

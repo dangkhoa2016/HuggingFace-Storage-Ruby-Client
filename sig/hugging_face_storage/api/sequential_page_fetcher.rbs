@@ -1,0 +1,10 @@
+module HuggingFaceStorage
+  class SequentialPageFetcher
+    def initialize: (executor: untyped, logger: HFLogger?, cancel_token: CancelToken?) -> void
+    def fetch_pages: (URI start_uri) -> Array[Hash[String, Object]]
+
+    private
+
+    def extract_next_link: (Net::HTTPResponse response) -> String?
+  end
+end

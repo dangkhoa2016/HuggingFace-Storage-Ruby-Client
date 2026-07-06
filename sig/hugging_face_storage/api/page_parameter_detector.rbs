@@ -1,0 +1,9 @@
+module HuggingFaceStorage
+  class PageParameterDetector
+    def detect: (URI first_uri, URI next_uri) -> [String, Integer]?
+
+    private
+
+    def find_page_param: (Array[String] all_keys, Hash[String, Array[String]] first_q, Hash[String, Array[String]] next_q) -> [String, Integer]?
+  end
+end

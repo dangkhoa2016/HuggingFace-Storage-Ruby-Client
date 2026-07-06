@@ -1,0 +1,44 @@
+module HuggingFaceStorage
+  class HTTPTransport
+    DEFAULT_BASE_URL: String
+
+    attr_reader http_pool: HttpPool
+    attr_reader retryable: Retryable
+    attr_reader request_logger: RequestLogger
+
+    def initialize: (config: Configuration, logger: HFLogger) -> void
+
+    def request: (
+      Symbol method,
+      String path,
+      ?headers: Hash[String, String],
+      ?body: String?,
+      ?cancel_token: CancelToken?,
+      ?query: Hash[String, Object]
+    ) -> String
+
+    def stream_download: (
+      Symbol method,
+      String path,
+      ?headers: Hash[String, String],
+      ?body: String?,
+      ?cancel_token: CancelToken?
+    ) { (String) -> void } -> void
+
+    def head: (String path, ?headers: Hash[String, String], ?cancel_token: CancelToken?) -> Net::HTTPResponse
+
+    def close_all_connections: -> void
+    def with_connection: (URI uri) { (Net::HTTP) -> untyped } -> untyped
+    def retry_with_backoff: (Configuration config, ?cancel_token: CancelToken?, ?logger: HFLogger?) { (Integer) -> (Net::HTTPResponse | nil) } -> (Net::HTTPResponse | nil)
+    def log_request: (URI uri, Net::HTTPRequest request) -> void
+    def log_response: (URI _uri, Net::HTTPResponse response) -> void
+    def build_redirect_follower: (?header_applier: Proc?) -> RedirectFollower
+
+    private
+
+    def build_uri: (String path, ?query: Hash[String | Symbol, Object]) -> URI
+    def build_headers: (?Hash[String, String] extra) -> Hash[String, String]
+    def build_http_request: (Symbol method, URI uri, Hash[String, String] headers, String? body) -> Net::HTTPRequest
+    def handle_status: (Net::HTTPResponse response) -> void
+  end
+end

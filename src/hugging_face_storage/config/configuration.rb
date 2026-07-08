@@ -136,7 +136,9 @@ module HuggingFaceStorage
     end
     define_method(:retry) { @retry_config }
 
-    def self.default = new
+    def self.default
+      new
+    end
 
     def with(**changes)
       self.class.new(**to_h, **changes)

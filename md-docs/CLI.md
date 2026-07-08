@@ -1,5 +1,7 @@
 # hfs — CLI Reference
 
+> 🌐 Language / Ngôn ngữ: **English** | [Tiếng Việt](CLI.vi.md)
+
 ## Overview
 
 `hfs` is the command-line interface for HuggingFace Storage Buckets. It is built on [Thor](https://github.com/rails/thor) and lives entirely in Ruby — no Python dependency, no external CLI calls.

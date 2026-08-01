@@ -15,7 +15,7 @@ group :test do
   gem "rubocop", "~> 1.75", require: false
   gem "rubocop-performance", "~> 1.25", require: false
   gem "rubocop-rspec", "~> 3.5", require: false
-  gem "simplecov", "~> 0.22", require: false
+  gem "simplecov", "~> 1.0", require: false
   gem "simplecov-console", "~> 0.9.5", require: false
   gem "webmock", "~> 3.26"
   gem "yard", "~> 0.9", require: false
